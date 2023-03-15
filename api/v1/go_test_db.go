@@ -7,4 +7,6 @@ type NewJobTaskReq struct {
 	Ciphertext string `v:"required"`
 }
 
-type NewJobTaskRes struct{}
+type NewJobTaskRes struct {
+	//OK bool `dc:"任务添加成功"`
+}
