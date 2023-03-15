@@ -14,9 +14,9 @@ import (
 
 type (
 	ITesDBCtx interface {
-		Init(r *ghttp.Request, ctx *model.Context)
+		Init(req *ghttp.Request, ctx *model.Context)
 		Get(ctx context.Context) *model.Context
-		SetTestDb(ctx context.Context, testDb *model.ContextGoTestDb)
+		SetCiphertext(ctx context.Context, ctxGoTestDb *string)
 	}
 )
 

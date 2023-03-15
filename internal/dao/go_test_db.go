@@ -25,3 +25,4 @@ var (
 )
 
 // Fill with you ideas below.
+// Model is core struct implementing the DAO for ORM.

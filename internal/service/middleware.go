@@ -11,7 +11,7 @@ import (
 
 type (
 	IMiddleware interface {
-		Ctx(r *ghttp.Request)
+		Ctx(req *ghttp.Request)
 	}
 )
 

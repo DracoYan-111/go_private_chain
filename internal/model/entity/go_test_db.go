@@ -21,8 +21,3 @@ type GoTestDb struct {
 	CreatedAt       *gtime.Time `json:"createdAt"       description:"合约创建时间"`
 	CurrentStatus   int         `json:"currentStatus"   description:"合约创建状态 0:任务提交 1:任务进行中 2:任务完成"`
 }
-
-
-
-
-

@@ -11,7 +11,7 @@ import (
 
 type (
 	IGoTestDb interface {
-		Create(ctx context.Context, req string) (err error)
+		CreateJob(ctx context.Context, req string) error
 	}
 )
 

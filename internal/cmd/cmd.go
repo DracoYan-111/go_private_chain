@@ -6,19 +6,23 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
 	goTestDb "go_private_chain/internal/controller/go_test_db"
+	"go_private_chain/internal/service"
 )
 
 var (
+	// Main 是主启动命令
 	Main = gcmd.Command{
 		Name:  "main",
 		Usage: "main",
-		Brief: "start http server",
+		Brief: "start http server of simple goframe demos",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			s := g.Server()
 			s.Use(ghttp.MiddlewareHandlerResponse)
 			s.Group("/", func(group *ghttp.RouterGroup) {
-				group.Middleware(ghttp.MiddlewareHandlerResponse)
-				// 注册路由处理程序。
+				group.Middleware(
+					service.Middleware().Ctx,
+					ghttp.MiddlewareCORS,
+				)
 				group.Bind(
 					goTestDb.New(),
 				)

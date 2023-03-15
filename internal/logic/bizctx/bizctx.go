@@ -13,22 +13,20 @@ type (
 	sTesDBCtx struct{}
 )
 
-// init方法中调用service.RegisterTesDBCtx方法,传入的参数为service.ITesDBCtx类型的指针
 func init() {
 	service.RegisterTesDBCtx(New())
 }
 
-// New 方法返回service.ITesDBCtx类型的指针
 func New() service.ITesDBCtx {
 	return &sTesDBCtx{}
 }
 
 // Init 方法被s*sTesDBCtx调用,传入的参数为*ghttp.Request,*model.Context
-func (s *sTesDBCtx) Init(r *ghttp.Request, ctx *model.Context) {
-	r.SetCtxVar(consts.ContextKey, ctx)
+func (s *sTesDBCtx) Init(req *ghttp.Request, ctx *model.Context) {
+	req.SetCtxVar(consts.ContextKey, ctx)
 }
 
-// Get 方法被s*sTesDBCtx调用,传入的参数为model.Context;return *model.Context
+// Get 方法被s*sTesDBCtx调用,传入的参数为context.Context返回 *model.Context
 func (s *sTesDBCtx) Get(ctx context.Context) *model.Context {
 	value := ctx.Value(consts.ContextKey)
 	if value == nil {
@@ -40,7 +38,7 @@ func (s *sTesDBCtx) Get(ctx context.Context) *model.Context {
 	return nil
 }
 
-// SetTestDb 方法被s*sTesDBCtx调用,传入的参数为model.Context,*model.ContextGoTestDb
-func (s *sTesDBCtx) SetTestDb(ctx context.Context, testDb *model.ContextGoTestDb) {
-	s.Get(ctx).CGoTestDb = testDb
+// SetCiphertext 方法被s*sTesDBCtx调用,传入的参数为context.Context,*string
+func (s *sTesDBCtx) SetCiphertext(ctx context.Context, ctxGoTestDb *string) {
+	s.Get(ctx).Ciphertext = ctxGoTestDb
 }
