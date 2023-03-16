@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	// Main 是主启动命令
+	// Main 主启动命令
 	Main = gcmd.Command{
 		Name:  "main",
 		Usage: "main",
@@ -23,6 +23,7 @@ var (
 					service.Middleware().Ctx,
 					ghttp.MiddlewareCORS,
 				)
+				// 注册中间件
 				group.Bind(
 					goTestDb.New(),
 				)

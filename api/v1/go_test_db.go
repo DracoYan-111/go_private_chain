@@ -8,5 +8,5 @@ type NewJobTaskReq struct {
 }
 
 type NewJobTaskRes struct {
-	//OK bool `dc:"任务添加成功"`
+	OK bool `summary:"任务状态"`
 }

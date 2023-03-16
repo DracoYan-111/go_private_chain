@@ -14,12 +14,12 @@ import (
 // Encrypt 使用给定密钥加密字符串。
 func Encrypt(plaintext string) (string, error) {
 
-	loading, err := ReadFile([]string{"aes.key"})
+	loading, err := ReadConfigFile([]string{"aes.key"}, "manifest/config/")
 	if err != nil {
 		log.Println(err)
 	}
 
-	key := []byte(loading[0])
+	key := []byte(loading["aes.key"])
 	paddingLength := aes.BlockSize - len(plaintext)%aes.BlockSize
 	padding := bytes.Repeat([]byte{byte(paddingLength)}, paddingLength)
 	plaintext = plaintext + string(padding)
@@ -41,11 +41,11 @@ func Encrypt(plaintext string) (string, error) {
 
 // AesDecrypt 使用给定的密钥解密字符串。
 func AesDecrypt(cipher string) (string, error) {
-	loading, err := ReadFile([]string{"aes.key"})
+	loading, err := ReadConfigFile([]string{"aes.key"}, "manifest/config/")
 	if err != nil {
 		log.Println(err)
 	}
-	key := []byte(loading[0])
+	key := []byte(loading["aes.key"])
 
 	// The ciphertext to be decrypted
 	ciphertext, _ := base64.StdEncoding.DecodeString(cipher)
@@ -68,28 +68,25 @@ func AesDecrypt(cipher string) (string, error) {
 	return string(plaintext), err
 }
 
-// NewECBDecrypter Create a new ECB mode decryptor
+// NewECBDecrypter 创建一个新的 ECB 模式解密器
 func newECBDecrypter(block cipher.Block) cipher.BlockMode {
 	return &ecbDecrypter{block}
 }
 
-func ReadFile(configs []string) ([]string, error) {
-	config := make([]string, len(configs))
+// ReadConfigFile 解读配置文件的数据
+func ReadConfigFile(configNames []string, configFilepath string) (map[string]string, error) {
 	v := viper.New()
-	// 设置配置文件的名称（不需要带扩展名）
 	v.SetConfigName("config")
-	// 设置配置文件类型
 	v.SetConfigType("yaml")
-	// 设置配置文件路径
-	v.AddConfigPath("manifest/config/")
-	// 读取配置文件
+	v.AddConfigPath(configFilepath)
 	if err := v.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		return nil, fmt.Errorf("failed to read config file: %s", err)
 	}
-	for i, j := range configs {
-		config[i] = v.GetString(j)
+	configs := make(map[string]string, len(configNames))
+	for _, name := range configNames {
+		configs[name] = v.GetString(name)
 	}
-	return config, nil
+	return configs, nil
 }
 
 type ecbDecrypter struct {
@@ -112,7 +109,7 @@ func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
 	}
 }
 
-// PKCS7Unpad Remove PKCS 7 padding
+// PKCS7Unpad 删除 PKCS 7 填充
 func pKCS7Unpad(data []byte, blockSize int) []byte {
 	if len(data) == 0 {
 		return []byte{}

@@ -14,13 +14,13 @@ func New() *Controller {
 	return &Controller{}
 }
 
-// NewJobTask is the API for user sign up.
+// NewJobTask 是上传新任务的API。
 func (c *Controller) NewJobTask(ctx context.Context, req *v1.NewJobTaskReq) (res *v1.NewJobTaskRes, err error) {
+
 	err = service.GoTestDb().CreateJob(ctx, req.Ciphertext)
 
-	//res = &v1.NewJobTaskRes{
-	//	OK: err == nil,
-	//}
-	//c.code = 200
+	res = &v1.NewJobTaskRes{
+		OK: err == nil,
+	}
 	return
 }
