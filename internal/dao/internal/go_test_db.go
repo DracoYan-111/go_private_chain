@@ -18,9 +18,9 @@ type GoTestDbDao struct {
 type GoTestDbColumns struct {
 	Id              string // 自增ID
 	Opcode          string // opcode
-	ContractName    string // contract name
-	ContractAddress string // contract address
-	ContractHash    string // contract hash
+	ContractName    string // contracts name
+	ContractAddress string // contracts address
+	ContractHash    string // contracts hash
 	GasUsed         string // gas 使用量
 	GasUsdt         string // 消耗的gas转为usdt
 	ChainId         string // 链id

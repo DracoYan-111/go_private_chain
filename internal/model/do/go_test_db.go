@@ -10,9 +10,9 @@ type GoTestDb struct {
 	g.Meta          `orm:"table:go_test_db, do:true"`
 	Id              interface{} // 自增ID
 	Opcode          interface{} // opcode
-	ContractName    interface{} // contract name
-	ContractAddress interface{} // contract address
-	ContractHash    interface{} // contract hash
+	ContractName    interface{} // contracts name
+	ContractAddress interface{} // contracts address
+	ContractHash    interface{} // contracts hash
 	GasUsed         interface{} // gas 使用量
 	GasUsdt         interface{} // 消耗的gas转为usdt
 	ChainId         interface{} // 链id

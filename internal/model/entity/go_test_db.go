@@ -8,9 +8,9 @@ import (
 type GoTestDb struct {
 	Id              int         `json:"id"              description:"自增ID"`
 	Opcode          string      `json:"opcode"          description:"opcode"`
-	ContractName    string      `json:"contractName"    description:"contract name"`
-	ContractAddress string      `json:"contractAddress" description:"contract address"`
-	ContractHash    string      `json:"contractHash"    description:"contract hash"`
+	ContractName    string      `json:"contractName"    description:"contracts name"`
+	ContractAddress string      `json:"contractAddress" description:"contracts address"`
+	ContractHash    string      `json:"contractHash"    description:"contracts hash"`
 	GasUsed         int64       `json:"gasUsed"         description:"gas 使用量"`
 	GasUsdt         float64     `json:"gasUsdt"         description:"消耗的gas转为usdt"`
 	ChainId         int64       `json:"chainId"         description:"链id"`
