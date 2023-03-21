@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/gogf/gf/v2/net/ghttp"
+	"log"
 )
 
 type (
@@ -15,6 +16,7 @@ var (
 )
 
 func Middleware() IMiddleware {
+	log.Println("来了来了来了来了来了来了来了来了来了")
 	if localMiddleware == nil {
 		panic("implement not found for interface IMiddleware, forgot register?")
 	}
