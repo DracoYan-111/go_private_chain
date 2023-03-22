@@ -59,7 +59,7 @@ func CreateConnection(privateKeys string) (*bind.TransactOpts, *ethclient.Client
 	var client *ethclient.Client
 	var err error
 
-	loading, err := utility.ReadConfigFile([]string{"web3.rpcUrl"}, "manifest/config/")
+	loading, err := utility.ReadConfigFile([]string{"web3.rpcUrl"})
 	if err != nil {
 		log.Panicln("<==== Deployment:文件读取失败 ====>:", err)
 	}

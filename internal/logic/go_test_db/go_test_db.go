@@ -2,17 +2,23 @@ package go_test_db
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"go_private_chain/internal/dao"
+	"go_private_chain/internal/model/entity"
 	"go_private_chain/internal/service"
 	"go_private_chain/utility"
+	"log"
 )
 
 type (
-	sGoTestDb struct{}
+	sGoTestDb     struct{}
+	MysqlPostRepo struct {
+		Conn *sql.DB
+	}
 )
 
 func init() {
@@ -72,4 +78,25 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 		_, err = dao.GoTestDb.Ctx(ctx).Data(tempTwos).Batch(len(tempTwos)).Insert()
 		return err
 	})
+}
+
+func (s *sGoTestDb) UndoneJob() ([]*entity.GoTestDb, error) {
+	log.Println(" ++++++++++laile+++++++++")
+	dbBase := dao.GoTestDb.DB().Model("go_test_db")
+	usefulInfo, err := dbBase.All("current_status = 0")
+	if err != nil {
+		return nil, fmt.Errorf("unable to get database data: %s", err)
+	}
+
+	return dealWith(usefulInfo.Json()), nil
+}
+
+// dealWith 处理为对象
+func dealWith(queryContext string) []*entity.GoTestDb {
+	var temps []*entity.GoTestDb
+	err := json.Unmarshal([]byte(queryContext), &temps)
+	if err != nil {
+		return nil
+	}
+	return temps
 }

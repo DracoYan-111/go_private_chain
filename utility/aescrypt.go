@@ -14,7 +14,7 @@ import (
 // Encrypt 使用给定密钥加密字符串。
 func Encrypt(plaintext string) (string, error) {
 
-	loading, err := ReadConfigFile([]string{"aes.key"}, "manifest/config/")
+	loading, err := ReadConfigFile([]string{"aes.key"} /*, "manifest/config/"*/)
 	if err != nil {
 		log.Println(err)
 	}
@@ -41,7 +41,7 @@ func Encrypt(plaintext string) (string, error) {
 
 // AesDecrypt 使用给定的密钥解密字符串。
 func AesDecrypt(cipher string) (string, error) {
-	loading, err := ReadConfigFile([]string{"aes.key"}, "manifest/config/")
+	loading, err := ReadConfigFile([]string{"aes.key"} /*, "manifest/config/"*/)
 	if err != nil {
 		log.Println(err)
 	}
@@ -74,11 +74,11 @@ func newECBDecrypter(block cipher.Block) cipher.BlockMode {
 }
 
 // ReadConfigFile 解读配置文件的数据
-func ReadConfigFile(configNames []string, configFilepath string) (map[string]string, error) {
+func ReadConfigFile(configNames []string) (map[string]string, error) {
 	v := viper.New()
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")
-	v.AddConfigPath(configFilepath)
+	v.AddConfigPath("manifest/config/")
 	if err := v.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config file: %s", err)
 	}
