@@ -45,7 +45,7 @@ func ContractDeployment(privateKeys string) (string, string, *big.Int, int64) {
 	}
 	log.Println("structure.Name", "Deployment:开始部署:", txData.Hash().Hex())
 
-	gasUsed, err := goTransactionNews(client, txData.Hash().Hex())
+	gasUsed, err := transactionNews(client, txData.Hash().Hex())
 
 	gas := gasUsed.Mul(gasUsed, txData.GasPrice())
 	//time.Sleep(3 * time.Second)

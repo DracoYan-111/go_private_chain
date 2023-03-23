@@ -3,40 +3,45 @@ package deploy
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"go_private_chain/contracts/box721"
 	"go_private_chain/contracts/createBox721"
+	"go_private_chain/internal/model/entity"
 	"log"
 	"math/big"
-	"math/rand"
 	"time"
 )
 
-// GoInteractiveContract 互动合约
-func GoInteractiveContract(contract *createBox721.CreateBox721, privateKeys string) {
-	auth, _ := CreateConnection(privateKeys)
-	// 设置随机种子
-	rand.Seed(time.Now().UnixNano())
-	// 生成19位随机数
-	randNum := rand.Int63n(9000000000000000000) + 1000000000000000000
+// InteractiveContract 互动合约
+func InteractiveContract(contract *createBox721.CreateBox721, jobData *entity.GoTestDb, privateKeys string) (string, string, *big.Int, string) {
+	auth, client := CreateConnection(privateKeys)
+	opcode, _ := new(big.Int).SetString(jobData.Opcode, 10)
 
-	tx, err := contract.CreatePair(auth, big.NewInt(randNum), "ttt", "ttt", common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"))
+	contractAddress := QueryContract(opcode, jobData.ContractName, jobData.ContractName, common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"), contract)
+	tx, err := contract.CreatePair(auth, opcode, jobData.ContractName, jobData.ContractName, common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"))
 	if err != nil {
 		log.Println("<==== LoadContract:发起交易异常 ====>", err)
 	}
-	fmt.Printf("tx sent: %s", tx.Hash().Hex())
 
+	time.Sleep(9 * time.Second)
+
+	gasUsed, err := transactionNews(client, tx.Hash().Hex())
+	if err != nil {
+		log.Println(err)
+	}
+	gas := gasUsed.Mul(gasUsed, tx.GasPrice())
+
+	return contractAddress.Hex(), tx.Hash().Hex(), gas, jobData.Opcode
 }
 
-// GoQueryContract 查询合约
-func GoQueryContract(contract *box721.Box721) {
-	name, err := contract.Name(nil)
+// QueryContract 查询合约
+func QueryContract(_opcode *big.Int, _name string, _symbol string, _minter common.Address, contract *createBox721.CreateBox721) common.Address {
+	contractAddress, err := contract.CalculateAddress(nil, _opcode, _name, _symbol, _minter)
 	if err != nil {
 		log.Println("<==== LoadContract:查询失败 ====>", err)
 	}
-	log.Println(name)
+	return contractAddress
 }
 
 // GoCreateAndGenerate 通过地址创建合约并生成合约实例
@@ -49,25 +54,20 @@ func GoQueryContract(contract *box721.Box721) {
 //	return example
 //}
 
-// goTransactionNews 查看使用的gas
-func goTransactionNews(client *ethclient.Client, hash string) (*big.Int, error) {
-	time.Sleep(7 * time.Second)
-
+// transactionNews 查看使用的gas
+func transactionNews(client *ethclient.Client, hash string) (*big.Int, error) {
 	txHash := common.HexToHash(hash)
 
 	_, isPending, err := client.TransactionByHash(context.Background(), txHash)
 	if err != nil {
-		log.Println(err)
+		return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:哈希交易检查失败 ====>")
 	}
-
 	if isPending {
-		log.Println("Deployment:Transaction is being packaged")
-
-		return new(big.Int).SetUint64(0), errors.New("Deployment:Transaction in progress")
+		return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:交易进行中 ====>")
 	} else {
 		receipt, err := client.TransactionReceipt(context.Background(), txHash)
 		if err != nil {
-			log.Println(err, "Deployment:Get the amount of gas used by the transaction")
+			return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:获取交易使用的gas量失败 ====>")
 		}
 		return new(big.Int).SetUint64(receipt.GasUsed), nil
 	}

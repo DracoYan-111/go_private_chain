@@ -82,13 +82,21 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 
 func (s *sGoTestDb) UndoneJob() ([]*entity.GoTestDb, error) {
 	log.Println(" ++++++++++laile+++++++++")
-	dbBase := dao.GoTestDb.DB().Model("go_test_db")
-	usefulInfo, err := dbBase.All("current_status = 0")
+	usefulInfo, err := dao.GoTestDb.DB().Model("go_test_db").All("current_status = 0")
 	if err != nil {
 		return nil, fmt.Errorf("unable to get database data: %s", err)
 	}
 
 	return dealWith(usefulInfo.Json()), nil
+}
+
+func (s *sGoTestDb) UpdateJob(newGoTestDb []*entity.GoTestDb) error {
+	usefulInfo, err := dao.GoTestDb.DB().Model("go_test_db").Data(newGoTestDb).Batch(len(newGoTestDb)).Update()
+	if err != nil {
+		return fmt.Errorf("unable to update database data: %s", err)
+	}
+	log.Println(usefulInfo)
+	return nil
 }
 
 // dealWith 处理为对象
