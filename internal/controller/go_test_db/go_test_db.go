@@ -24,11 +24,3 @@ func (c *Controller) NewJobTask(ctx context.Context, req *v1.NewJobTaskReq) (res
 	}
 	return
 }
-
-// NewTestTask 是上传新任务的API。
-func (c *Controller) NewTestTask(ctx context.Context, req *v1.NewTestReq) (res *v1.NewTestRes, err error) {
-	res = &v1.NewTestRes{
-		OK: "啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦",
-	}
-	return
-}

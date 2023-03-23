@@ -8,7 +8,6 @@ import (
 
 // UpdateLibrary Update database scheduled tasks
 func UpdateLibrary() {
-	log.Println("??????????????????????????")
 	cronJob := cron.New()
 	spec := "*/30 * * * * ?"
 	err := cronJob.AddFunc(spec, func() {
@@ -18,9 +17,11 @@ func UpdateLibrary() {
 			log.Panicln("数据库户获取异常", err)
 		}
 		if len(job) > 0 {
+			for i := range job {
+				log.Println(job[i])
+			}
 			Mains(job)
 		}
-
 		log.Println("-------------结束--------------")
 	})
 	if err != nil {

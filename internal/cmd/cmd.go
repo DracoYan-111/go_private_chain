@@ -8,7 +8,6 @@ import (
 	goTestDb "go_private_chain/internal/controller/go_test_db"
 	"go_private_chain/internal/service"
 	"go_private_chain/internal/timed"
-	"log"
 )
 
 var (
@@ -16,9 +15,8 @@ var (
 	Main = gcmd.Command{
 		Name:  "main",
 		Usage: "main",
-		Brief: "start http server of simple goframe demos",
+		Brief: "start http server of simple goframe",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
-			log.Println("11111111")
 			timed.UpdateLibrary()
 			//gsvc.SetRegistry(etcd.New(`127.0.0.1:2379`))
 			s := g.Server(`hello.svc`)
