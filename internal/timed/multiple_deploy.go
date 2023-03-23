@@ -4,6 +4,7 @@ import (
 	"go_private_chain/contracts/createBox721"
 	"go_private_chain/internal/deploy"
 	"go_private_chain/internal/model/entity"
+	"go_private_chain/internal/service"
 	"go_private_chain/utility"
 	"log"
 	"math/big"
@@ -60,12 +61,14 @@ func StartUp(jobData []*entity.GoTestDb) {
 }
 func processStructure(jobData []*entity.GoTestDb, payload map[string]*WorkerResult) {
 
-	for i := range jobData {
-		jobData[i].ContractAddress = payload[jobData[i].Opcode].Address
-		jobData[i].ContractHash = payload[jobData[i].Opcode].Hash
-		jobData[i].GasUsed = payload[jobData[i].Opcode].Gas.Int64()
+	for _, single := range jobData {
+		single.ContractAddress = payload[single.Opcode].Address
+		single.ContractHash = payload[single.Opcode].Hash
+		single.GasUsed = payload[single.Opcode].Gas.Int64()
+		single.CurrentStatus = 2
 	}
-	for v := range jobData {
-		log.Println(jobData[v], "??????????????")
+	err := service.GoTestDb().UpdateJob(jobData)
+	if err != nil {
+		log.Println(err)
 	}
 }

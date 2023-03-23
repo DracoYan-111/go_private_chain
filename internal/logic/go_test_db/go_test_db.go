@@ -55,14 +55,14 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 	var temps []Temporary
 	err = json.Unmarshal([]byte(aesDecrypt), &temps)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal json: %s", err)
+		return fmt.Errorf("无法解组 json: %s", err)
 	}
 
 	// 检查结构体内容是否正确
 	var tempTwos []TemporaryTwo
 	for _, v := range temps {
 		if v.Opcode == "" || v.ContractName == "" || len(v.Opcode) != 19 || v.ChainId == 0 {
-			return errors.New("illegal content")
+			return errors.New("非法内容")
 		} else {
 			tempTwo := TemporaryTwo{
 				Opcode:       v.Opcode,
@@ -81,21 +81,22 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 }
 
 func (s *sGoTestDb) UndoneJob() ([]*entity.GoTestDb, error) {
-	log.Println(" ++++++++++laile+++++++++")
 	usefulInfo, err := dao.GoTestDb.DB().Model("go_test_db").All("current_status = 0")
 	if err != nil {
-		return nil, fmt.Errorf("unable to get database data: %s", err)
+		return nil, fmt.Errorf("无法获取数据库数据: %s", err)
 	}
 
 	return dealWith(usefulInfo.Json()), nil
 }
 
 func (s *sGoTestDb) UpdateJob(newGoTestDb []*entity.GoTestDb) error {
-	usefulInfo, err := dao.GoTestDb.DB().Model("go_test_db").Data(newGoTestDb).Batch(len(newGoTestDb)).Update()
-	if err != nil {
-		return fmt.Errorf("unable to update database data: %s", err)
+	for _, gtd := range newGoTestDb {
+		_, err := dao.GoTestDb.DB().Model("go_test_db").Data(gtd).Where("id = ?", gtd.Id).Update()
+		if err != nil {
+			return fmt.Errorf("无法更新数据库数据: %s", err)
+		}
 	}
-	log.Println(usefulInfo)
+	log.Println(len(newGoTestDb), "条数据已经更新")
 	return nil
 }
 
