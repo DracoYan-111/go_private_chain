@@ -59,6 +59,7 @@ func StartUp(jobData []*entity.GoTestDb) {
 	}
 	processStructure(jobData, integrate)
 }
+
 func processStructure(jobData []*entity.GoTestDb, payload map[string]*WorkerResult) {
 
 	for _, single := range jobData {

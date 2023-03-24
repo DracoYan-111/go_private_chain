@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
+	soliditysha3 "github.com/miguelmota/go-solidity-sha3"
+	"go_private_chain/internal/deploy"
 	"log"
+	"math/big"
 	"time"
 )
 
@@ -27,30 +31,29 @@ func worker(id int, object string, jobs <-chan int, results chan<- int) {
 }
 
 func main() {
-	//// 模拟从数据库获取到的对象列表
+	deploy.Qianming()
+}
 
-	//计算需要循环的次数
-	numLoops := len(objects) / 5
-	if len(objects)%5 != 0 {
-		numLoops++
-	}
-	var numLoopsTwo = 5
-	for i := 0; i < numLoops; i++ {
-		log.Println("=======+++++++++++======")
-		if len(objects)%5 > 0 && i == numLoops-1 {
-			numLoopsTwo = len(objects) % 5
-		}
-		jobs := make(chan int, numLoopsTwo)
-		results := make(chan int, numLoopsTwo)
-		for j := 0; j < numLoopsTwo; j++ {
-			go worker(j, objects[(i*5)+j], jobs, results)
-		}
-		for k := 0; k < numLoopsTwo; k++ {
-			jobs <- k
-		}
-		close(jobs)
-		for j := 0; j < numLoopsTwo; j++ {
-			<-results
+func encodeMintFunction() {
+	toAddress := "0x1234567890123456789012345678901234567890"
+	amount := big.NewInt(1000000000000000000) // 1 ether
+	functionName := []byte("transferOwnership")
+	argTypes := []string{"address"}
+	args := []interface{}{toAddress, amount}
+	data := make([]byte, 0)
+	data = append(data, soliditysha3.SoliditySHA3(functionName, argTypes)...)
+	for _, arg := range args {
+		switch v := arg.(type) {
+		case string:
+			data = append(data, soliditysha3.SoliditySHA3([]byte(v))...)
+		case int:
+			data = append(data, soliditysha3.SoliditySHA3(big.NewInt(int64(v)))...)
+		case *big.Int:
+			data = append(data, soliditysha3.SoliditySHA3(v)...)
+		default:
+			panic(fmt.Sprintf("Unsupported type: %T", v))
 		}
 	}
+	hexData := hex.EncodeToString(data)
+	fmt.Println(hexData)
 }

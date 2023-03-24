@@ -16,9 +16,9 @@ func UpdateLibrary() {
 			log.Panicln("UpdateLibrary:数据库户获取异常", err)
 		}
 		if len(job) > 0 {
-			log.Println("-------------开始--------------")
+			log.Println("-------------任务执行开始--------------")
 			StartUp(job)
-			log.Println("-------------结束--------------")
+			log.Println("-------------任务执行结束--------------")
 		}
 	})
 	if err != nil {
