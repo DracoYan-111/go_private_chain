@@ -3,19 +3,17 @@ package deploy
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"go_private_chain/contracts/box721"
+	"go_private_chain/contracts/contractCall"
 	"go_private_chain/contracts/createBox721"
 	"go_private_chain/internal/model/entity"
 	"go_private_chain/utility"
-	"io"
 	"log"
 	"math/big"
-	"os"
-	"strings"
+	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -45,53 +43,33 @@ func InteractiveContract(contract *createBox721.CreateBox721, jobData *entity.Go
 	return contractAddress.Hex(), tx.Hash().Hex(), gas, jobData.Opcode
 }
 
-func BulkIssuance(contract *createBox721.CreateBox721) {
-	//loading, _ := utility.ReadConfigFile([]string{"web3.web3.privateKey1"})
-	//auth, _ := CreateConnection(loading["web3.privateKey1"])
+// BulkIssuance 批量增发方法
+func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.Address, tos []common.Address, tokenIds []*big.Int, uris []string) (string, error) {
+	rand.Seed(time.Now().UnixNano())
+	private := "web3.privateKey" + strconv.Itoa(rand.Intn(5))
+	loading, _ := utility.ReadConfigFile([]string{private})
+	auth, _ := CreateConnection(loading[private])
+	sig := Signature(tos, tokenIds, uris)
+	callBox721, err := createBox721.CallBox721(auth, box721Address, sig)
+	if err != nil {
+		return "", err
+	}
+	return callBox721.Hash().Hex(), nil
 
 }
 
-func mintNft(contract *box721.Box721) {
+// signature 获取方法签名信息
+func Signature(tos []common.Address, tokenIds []*big.Int, uris []string) []byte {
+	rand.Seed(time.Now().UnixNano())
+	private := "web3.privateKey" + strconv.Itoa(rand.Intn(5))
+	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall", private})
+	createBox := LoadWithAddress(loading["web3.contractCall"], "contractCall", loading[private]).(*contractCall.ContractCall)
 
-	//myAddress := []common.Address{common.HexToAddress("0x1234567890123456789012345678901234567890"), common.HexToAddress("0x1234567890123456789012345678901234567890")}
-	//myValue := []*big.Int{big.NewInt(0).SetInt64(1)}
-	//myUri := []string{""}
-	//opts := bind.CallOpts{}
-	//encodedParams, err := contract.BatchSafeMint(nil, myAddress, myValue, myUri)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//// 构建函数调用数据
-	//functionSelector := box721.Box721Caller{}.
-	//data := append(functionSelector[:4], encodedParams...)
-
-}
-
-func Qianming() {
-	// 打开本地文件
-	file, err := os.Open("contracts/contract/Box721_sol_createBox721.abi")
+	call, err := createBox.BatchSafeMintCall(nil, tos, tokenIds, uris)
 	if err != nil {
-		// 处理错误
+		return nil
 	}
-	// 读取文件内容
-	content, err := io.ReadAll(file)
-	if err != nil {
-		// 处理错误
-	}
-	factoryABI, err := abi.JSON(strings.NewReader(string(content)))
-	if err != nil {
-		fmt.Println("Failed to parse ABI:", err)
-		return
-	}
-
-	data, err := factoryABI.Pack("transferOwnership", common.HexToAddress("0x5bdAAD14EA49603fA1170175BB1B14eF707b1104"))
-	if err != nil {
-		fmt.Println("Failed to encode function data:", err)
-		return
-	}
-
-	fmt.Printf("签名信息: 0x%x\n", data)
+	return call
 }
 
 // QueryContract 查询合约地址
@@ -102,16 +80,6 @@ func QueryContract(_opcode *big.Int, _name string, _symbol string, _minter commo
 	}
 	return contractAddress
 }
-
-// GoCreateAndGenerate 通过地址创建合约并生成合约实例
-//func GoCreateAndGenerate(structure Structure, t *testing.T) *box721.Box721 {
-//	//contractAddr := GoContractDeployment(structure)
-//	_, address, _, _ := GoContractDeployment(structure)
-//	example := GoLoadWithAddress(address, t)
-//	GoQueryContract(example, t)
-//	GoInteractiveContract(example, t)
-//	return example
-//}
 
 // transactionNews 查看使用的gas
 func transactionNews(client *ethclient.Client, hash string) (*big.Int, error) {
@@ -143,6 +111,8 @@ func LoadWithAddress(contractAddr, contractType, privateKeys string) interface{}
 		instance, err = box721.NewBox721(common.HexToAddress(contractAddr), client)
 	case contractType == "createBox721":
 		instance, err = createBox721.NewCreateBox721(common.HexToAddress(contractAddr), client)
+	case contractType == "contractCall":
+		instance, err = contractCall.NewContractCall(common.HexToAddress(contractAddr), client)
 	}
 	if err != nil {
 		log.Println("<==== loadContract:生成合约实例失败 ====>", err)
