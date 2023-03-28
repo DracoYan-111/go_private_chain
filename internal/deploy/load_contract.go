@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"go_private_chain/contracts/box721"
 	"go_private_chain/contracts/contractCall"
 	"go_private_chain/contracts/createBox721"
 	"go_private_chain/internal/model/entity"
@@ -22,7 +21,7 @@ func InteractiveContract(contract *createBox721.CreateBox721, jobData *entity.Go
 	auth, client := CreateConnection(privateKeys)
 	opcode, _ := new(big.Int).SetString(jobData.Opcode, 10)
 	// 防止重复修改
-	if jobData.ContractAddress != "" && jobData.ContractHash != "" {
+	if jobData.ContractAddress != "" || jobData.ContractHash != "" {
 		return jobData.ContractAddress, jobData.ContractHash, big.NewInt(jobData.GasUsed), jobData.Opcode
 	}
 	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721"})
@@ -49,7 +48,10 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 	private := "web3.privateKey" + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{private})
 	auth, _ := CreateConnection(loading[private])
-	sig := Signature(tos, tokenIds, uris)
+	sig, err := Signature(tos, tokenIds, uris)
+	if err != nil {
+		return "", err
+	}
 	callBox721, err := createBox721.CallBox721(auth, box721Address, sig)
 	if err != nil {
 		return "", err
@@ -58,8 +60,8 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 
 }
 
-// signature 获取方法签名信息
-func Signature(tos []common.Address, tokenIds []*big.Int, uris []string) []byte {
+// Signature 获取方法签名信息
+func Signature(tos []common.Address, tokenIds []*big.Int, uris []string) ([]byte, error) {
 	rand.Seed(time.Now().UnixNano())
 	private := "web3.privateKey" + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall", private})
@@ -67,9 +69,9 @@ func Signature(tos []common.Address, tokenIds []*big.Int, uris []string) []byte 
 
 	call, err := createBox.BatchSafeMintCall(nil, tos, tokenIds, uris)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return call
+	return call, nil
 }
 
 // QueryContract 查询合约地址
@@ -98,24 +100,4 @@ func transactionNews(client *ethclient.Client, hash string) (*big.Int, error) {
 		}
 		return new(big.Int).SetUint64(receipt.GasUsed), nil
 	}
-}
-
-// LoadWithAddress 通过地址生成合约实例
-func LoadWithAddress(contractAddr, contractType, privateKeys string) interface{} {
-	_, client := CreateConnection(privateKeys)
-
-	var instance interface{}
-	var err error
-	switch {
-	case contractType == "box721":
-		instance, err = box721.NewBox721(common.HexToAddress(contractAddr), client)
-	case contractType == "createBox721":
-		instance, err = createBox721.NewCreateBox721(common.HexToAddress(contractAddr), client)
-	case contractType == "contractCall":
-		instance, err = contractCall.NewContractCall(common.HexToAddress(contractAddr), client)
-	}
-	if err != nil {
-		log.Println("<==== loadContract:生成合约实例失败 ====>", err)
-	}
-	return instance
 }

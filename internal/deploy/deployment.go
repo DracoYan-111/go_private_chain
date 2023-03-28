@@ -7,6 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"go_private_chain/contracts/box721"
+	"go_private_chain/contracts/contractCall"
+	"go_private_chain/contracts/createBox721"
 	"go_private_chain/utility"
 	"log"
 	"math/big"
@@ -19,7 +21,7 @@ type Structure struct {
 	TokenURIPrefix string
 }
 
-// GoContractDeployment 创建合约并返回合约地址
+// ContractDeployment 创建合约并返回合约地址
 func ContractDeployment(privateKeys string) (string, string, *big.Int, int64) {
 	auth, client := CreateConnection(privateKeys)
 
@@ -54,7 +56,27 @@ func ContractDeployment(privateKeys string) (string, string, *big.Int, int64) {
 
 }
 
-// GoCreateConnection 创建区块链连接
+// LoadWithAddress 通过地址生成合约实例
+func LoadWithAddress(contractAddr, contractType, privateKeys string) interface{} {
+	_, client := CreateConnection(privateKeys)
+
+	var instance interface{}
+	var err error
+	switch {
+	case contractType == "box721":
+		instance, err = box721.NewBox721(common.HexToAddress(contractAddr), client)
+	case contractType == "createBox721":
+		instance, err = createBox721.NewCreateBox721(common.HexToAddress(contractAddr), client)
+	case contractType == "contractCall":
+		instance, err = contractCall.NewContractCall(common.HexToAddress(contractAddr), client)
+	}
+	if err != nil {
+		log.Println("<==== loadContract:生成合约实例失败 ====>", err)
+	}
+	return instance
+}
+
+// CreateConnection 创建区块链连接
 func CreateConnection(privateKeys string) (*bind.TransactOpts, *ethclient.Client) {
 	var client *ethclient.Client
 	var err error
