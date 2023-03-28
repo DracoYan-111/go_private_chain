@@ -2,10 +2,13 @@ package deploy
 
 import (
 	"context"
+	"errors"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"go_private_chain/contracts/accounts"
+	"go_private_chain/contracts/accountsFactory"
 	"go_private_chain/contracts/box721"
 	"go_private_chain/contracts/contractCall"
 	"go_private_chain/contracts/createBox721"
@@ -47,7 +50,7 @@ func ContractDeployment(privateKeys string) (string, string, *big.Int, int64) {
 	}
 	log.Println("structure.Name", "Deployment:开始部署:", txData.Hash().Hex())
 
-	gasUsed, err := transactionNews(client, txData.Hash().Hex())
+	gasUsed, err := TransactionNews(client, txData.Hash().Hex())
 
 	gas := gasUsed.Mul(gasUsed, txData.GasPrice())
 	//time.Sleep(3 * time.Second)
@@ -69,6 +72,10 @@ func LoadWithAddress(contractAddr, contractType, privateKeys string) interface{}
 		instance, err = createBox721.NewCreateBox721(common.HexToAddress(contractAddr), client)
 	case contractType == "contractCall":
 		instance, err = contractCall.NewContractCall(common.HexToAddress(contractAddr), client)
+	case contractType == "accounts":
+		instance, err = accounts.NewAccounts(common.HexToAddress(contractAddr), client)
+	case contractType == "accountsFactory":
+		instance, err = accountsFactory.NewAccountsFactory(common.HexToAddress(contractAddr), client)
 	}
 	if err != nil {
 		log.Println("<==== loadContract:生成合约实例失败 ====>", err)
@@ -121,4 +128,23 @@ func CreateConnection(privateKeys string) (*bind.TransactOpts, *ethclient.Client
 	auth.GasPrice = gasPrice
 
 	return auth, client
+}
+
+// TransactionNews 查看使用的gas
+func TransactionNews(client *ethclient.Client, hash string) (*big.Int, error) {
+	txHash := common.HexToHash(hash)
+
+	_, isPending, err := client.TransactionByHash(context.Background(), txHash)
+	if err != nil {
+		return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:哈希交易检查失败 ====>")
+	}
+	if isPending {
+		return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:交易进行中 ====>")
+	} else {
+		receipt, err := client.TransactionReceipt(context.Background(), txHash)
+		if err != nil {
+			return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:获取交易使用的gas量失败 ====>")
+		}
+		return new(big.Int).SetUint64(receipt.GasUsed), nil
+	}
 }

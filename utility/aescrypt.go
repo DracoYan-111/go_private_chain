@@ -8,7 +8,10 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"log"
+	"math/big"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 // Encrypt 使用给定密钥加密字符串。
@@ -87,6 +90,21 @@ func ReadConfigFile(configNames []string) (map[string]string, error) {
 		configs[name] = v.GetString(name)
 	}
 	return configs, nil
+}
+
+func RandomNumber() *big.Int {
+	for true {
+		rand.Seed(time.Now().UnixNano())
+		max := big.NewInt(0)
+		max.SetString("99999999999999999999", 10)
+		randomNumber := rand.Intn(int(max.Int64()))
+		newNumber := big.NewInt(int64(randomNumber))
+
+		if len(newNumber.Text(10)) == 19 {
+			return big.NewInt(int64(randomNumber))
+		}
+	}
+	return nil
 }
 
 type ecbDecrypter struct {

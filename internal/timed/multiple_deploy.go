@@ -24,7 +24,7 @@ func worker(id int, data *entity.GoTestDb, jobs <-chan int, results chan<- *Work
 	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
 	createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
 	for range jobs {
-		address, hash, gas, opcode := deploy.InteractiveContract(createBox, data, loading[private])
+		address, hash, gas, opcode := deploy.InteractiveNftContract(createBox, data, loading[private])
 		time.Sleep(1 * time.Second)
 		results <- &WorkerResult{opcode, address, hash, gas}
 	}
