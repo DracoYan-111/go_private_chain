@@ -3,7 +3,7 @@ package v1
 import "github.com/gogf/gf/v2/frame/g"
 
 type NewUserAddressReq struct {
-	g.Meta     `path:"/user/new-user-address" method:"post" tags:"AddedService" summary:"创建一个新账户"`
+	g.Meta     `path:"/user/new-user-address" method:"post" tags:"AddedAccounts" summary:"创建一个新账户"`
 	Ciphertext string `v:"required"`
 }
 

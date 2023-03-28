@@ -7,14 +7,14 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-// UserDataDao is the data access object for table user_data.
+// UserDataDao is the data access object for table user_data
 type UserDataDao struct {
 	table   string          // table is the underlying table name of the DAO.
 	group   string          // group is the database configuration group name of current DAO.
 	columns UserDataColumns // columns contains all the column names of Table for convenient usage.
 }
 
-// UserDataColumns defines and stores column names for table user_data.
+// UserDataColumns defines and stores column names for table user_data
 type UserDataColumns struct {
 	Id          string //
 	Userid      string //
@@ -22,7 +22,7 @@ type UserDataColumns struct {
 	Parentid    string //
 }
 
-// userDataColumns holds the columns for table user_data.
+// userDataColumns holds the columns for table user_data
 var userDataColumns = UserDataColumns{
 	Id:          "id",
 	Userid:      "userid",

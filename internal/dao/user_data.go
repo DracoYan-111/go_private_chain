@@ -7,7 +7,7 @@ import (
 // internalUserDataDao is internal type for wrapping internal DAO implements.
 type internalUserDataDao = *internal.UserDataDao
 
-// userDataDao is the data access object for table user_data.
+// userDataDao is the data access object for table user_data
 // You can define custom methods on it to extend its functionality as you wish.
 type userDataDao struct {
 	internalUserDataDao

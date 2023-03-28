@@ -2,7 +2,6 @@ package go_test_db
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,10 +14,7 @@ import (
 )
 
 type (
-	sGoTestDb     struct{}
-	MysqlPostRepo struct {
-		Conn *sql.DB
-	}
+	sGoTestDb struct{}
 )
 
 func init() {

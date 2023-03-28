@@ -19,6 +19,7 @@ type WorkerResult struct {
 	Gas     *big.Int
 }
 
+// worker 执行多线程合约创建任务
 func worker(id int, data *entity.GoTestDb, jobs <-chan int, results chan<- *WorkerResult) {
 	private := "web3.privateKey" + strconv.Itoa(id)
 	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
@@ -30,6 +31,7 @@ func worker(id int, data *entity.GoTestDb, jobs <-chan int, results chan<- *Work
 	}
 }
 
+// StartUp 启动线程
 func StartUp(jobData []*entity.GoTestDb) {
 	var numLoopsTwo = 5
 	var integrate = make(map[string]*WorkerResult)
@@ -60,8 +62,8 @@ func StartUp(jobData []*entity.GoTestDb) {
 	processStructure(jobData, integrate)
 }
 
+// processStructure 格式化结构并插入数据库
 func processStructure(jobData []*entity.GoTestDb, payload map[string]*WorkerResult) {
-
 	for _, single := range jobData {
 		single.ContractAddress = payload[single.Opcode].Address
 		single.ContractHash = payload[single.Opcode].Hash
