@@ -6,12 +6,11 @@ import (
 	"go_private_chain/utility"
 	"log"
 	"math/big"
-	"time"
 )
 
 // InteractiveAccountContract 创建用户地址
-func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name, privateKeys string) (string, string, string, *big.Int) {
-	auth, client := CreateConnection(privateKeys)
+func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name, privateKeys string) (string, string, string /*, *big.Int*/) {
+	auth, _ := CreateConnection(privateKeys)
 	opcode := utility.RandomNumber()
 	accountsAddress := QueryAccountContract(opcode, name, contract)
 	tx, err := contract.CreatePair(auth, opcode, name)
@@ -19,15 +18,15 @@ func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name,
 		log.Println("<==== loadAccounts:发起交易异常 ====>", err)
 	}
 
-	time.Sleep(9 * time.Second)
+	//time.Sleep(9 * time.Second)
+	//
+	//gasUsed, err := TransactionNews(client, tx.Hash().Hex())
+	//if err != nil {
+	//	log.Println(err)
+	//}
+	//gas := gasUsed.Mul(gasUsed, tx.GasPrice())
 
-	gasUsed, err := TransactionNews(client, tx.Hash().Hex())
-	if err != nil {
-		log.Println(err)
-	}
-	gas := gasUsed.Mul(gasUsed, tx.GasPrice())
-
-	return accountsAddress.Hex(), tx.Hash().Hex(), opcode.Text(10), gas
+	return accountsAddress.Hex(), tx.Hash().Hex(), opcode.Text(10) /*, gas*/
 }
 
 // QueryAccountContract 查询合约地址

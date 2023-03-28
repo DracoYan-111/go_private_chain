@@ -13,7 +13,7 @@ func main() {
 
 	createBox := deploy.LoadWithAddress(loading["web3.accountsFactory"], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
 
-	a, b, c, d := deploy.InteractiveAccountContract(createBox, "fadsfadfa", loading[private])
-	log.Println(a, b, c, d)
+	a, b, c := deploy.InteractiveAccountContract(createBox, "fadsfadfa", loading[private])
+	log.Println(a, b, c)
 
 }

@@ -5,7 +5,6 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 	"go_private_chain/internal/cmd"
 	_ "go_private_chain/internal/logic"
-	_ "go_private_chain/internal/packed"
 	"go_private_chain/internal/timed"
 )
 
