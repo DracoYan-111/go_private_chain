@@ -6,7 +6,7 @@ import (
 
 type (
 	IUserData interface {
-		CreateUserAddress(ctx context.Context, req string) error
+		CreateUserAddress(ctx context.Context, req string) (string, error)
 	}
 )
 

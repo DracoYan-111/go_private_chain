@@ -17,10 +17,11 @@ func New() *UserController {
 // NewUserAddress 是生成一个新用户地址。
 func (c *UserController) NewUserAddress(ctx context.Context, req *v1.NewUserAddressReq) (res *v1.NewUserAddressRes, err error) {
 
-	err = service.UserData().CreateUserAddress(ctx, req.Ciphertext)
+	userAddress, err := service.UserData().CreateUserAddress(ctx, req.Ciphertext)
 
 	res = &v1.NewUserAddressRes{
-		OK: err == nil,
+		OK:          err == nil,
+		UserAddress: userAddress,
 	}
 	return
 }

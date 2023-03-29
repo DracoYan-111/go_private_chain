@@ -8,7 +8,8 @@ type NewUserAddressReq struct {
 }
 
 type NewUserAddressRes struct {
-	OK bool `summary:"任务状态"`
+	OK          bool   `summary:"任务状态"`
+	UserAddress string `summary:"用户地址"`
 }
 
 type NewAdditionalTasksReq struct {
