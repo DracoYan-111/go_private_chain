@@ -45,7 +45,7 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{private})
 	auth, _ := CreateConnection(loading[private])
-	sig, err := Signature(tos, tokenIds, uris)
+	sig, err := Signature(tos, tokenIds, uris, loading[private])
 	if err != nil {
 		return "", err
 	}
@@ -58,11 +58,9 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 }
 
 // Signature 获取方法签名信息
-func Signature(tos []common.Address, tokenIds []*big.Int, uris []string) ([]byte, error) {
-	rand.Seed(time.Now().UnixNano())
-	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
-	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall", private})
-	createBox := LoadWithAddress(loading["web3.contractCall"], "contractCall", loading[private]).(*contractCall.ContractCall)
+func Signature(tos []common.Address, tokenIds []*big.Int, uris []string, private string) ([]byte, error) {
+	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall"})
+	createBox := LoadWithAddress(loading["web3.contractCall"], "contractCall", private).(*contractCall.ContractCall)
 
 	call, err := createBox.BatchSafeMintCall(nil, tos, tokenIds, uris)
 	if err != nil {

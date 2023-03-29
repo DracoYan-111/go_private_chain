@@ -12,11 +12,11 @@ type NewUserAddressRes struct {
 	UserAddress string `summary:"用户地址"`
 }
 
-type NewAdditionalTasksReq struct {
+type NewBatchCastNftReq struct {
 	g.Meta     `path:"/user/new-added-task" method:"post" tags:"AddedService" summary:"上传一个新的藏品增发任务"`
 	Ciphertext string `v:"required"`
 }
 
-type NewAdditionalTasksRes struct {
+type NewBatchCastNftRes struct {
 	OK bool `summary:"任务状态"`
 }

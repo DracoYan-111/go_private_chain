@@ -7,6 +7,7 @@ import (
 type (
 	IUserData interface {
 		CreateUserAddress(ctx context.Context, req string) (string, error)
+		BatchCastingNft(ctx context.Context, req string) (string, error)
 	}
 )
 
