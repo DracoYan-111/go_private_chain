@@ -21,7 +21,7 @@ type WorkerResult struct {
 
 // worker 执行多线程合约创建任务
 func worker(id int, data *entity.GoTestDb, jobs <-chan int, results chan<- *WorkerResult) {
-	private := "web3.privateKey" + strconv.Itoa(id)
+	private := "web3.accountsKey.privateKey" + strconv.Itoa(id)
 	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
 	createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
 	for range jobs {

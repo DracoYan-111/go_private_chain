@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	private := "web3.privateKey0"
+	private := "web3.accountsKey.privateKey0"
 	loading, _ := utility.ReadConfigFile([]string{"web3.accountsFactory", private})
 
 	createBox := deploy.LoadWithAddress(loading["web3.accountsFactory"], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)

@@ -11,7 +11,6 @@ import (
 	"go_private_chain/internal/model/entity"
 	"go_private_chain/internal/service"
 	"go_private_chain/utility"
-	"log"
 )
 
 type (
@@ -43,10 +42,9 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 	insertUserData, err := dao.UserData.Ctx(ctx).Data(dbUserData).Insert()
 
 	// 创建用户合约
-	private := "web3.privateKey0"
+	private := "web3.accountsKey.privateKey0"
 	loading, _ := utility.ReadConfigFile([]string{"web3.accountsFactory", private})
 	createBox := deploy.LoadWithAddress(loading["web3.accountsFactory"], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
-	log.Println(aesDecrypt)
 	userAddress, txHash, opcode := deploy.InteractiveAccountContract(createBox, aesDecrypt, loading[private])
 
 	// 检查地址和opcode是否已经存在

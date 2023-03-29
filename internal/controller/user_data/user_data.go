@@ -14,7 +14,7 @@ func New() *UserController {
 	return &UserController{}
 }
 
-// NewUserAddress 是生成一个新用户地址。
+// NewUserAddress 是生成一个新用户地址API
 func (c *UserController) NewUserAddress(ctx context.Context, req *v1.NewUserAddressReq) (res *v1.NewUserAddressRes, err error) {
 
 	userAddress, err := service.UserData().CreateUserAddress(ctx, req.Ciphertext)
