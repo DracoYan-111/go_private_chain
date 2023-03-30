@@ -35,6 +35,7 @@ var (
 				)
 			})
 			s.Run()
+			//timed.UpdateLibrary()
 			return nil
 		},
 	}

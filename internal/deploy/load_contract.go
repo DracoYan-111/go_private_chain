@@ -46,6 +46,9 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 	loading, _ := utility.ReadConfigFile([]string{private})
 	auth, _ := CreateConnection(loading[private])
 	sig, err := Signature(tos, tokenIds, uris, loading[private])
+
+	log.Println(loading[private], auth.From, "==///////////////////==")
+
 	if err != nil {
 		return "", err
 	}

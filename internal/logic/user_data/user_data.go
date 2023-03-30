@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/gogf/gf/v2/frame/g"
 	"go_private_chain/contracts/accountsFactory"
 	"go_private_chain/contracts/createBox721"
 	"go_private_chain/internal/dao"
@@ -42,22 +41,30 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 		return "", fmt.Errorf("CreateUserAddress: %s", err)
 	}
 
+	// 检查opcode是否已经存在
+	opcode := utility.RandomNumber()
+	dbUserAddress, err := dao.UserData.Ctx(ctx).Where("opcode", opcode).All()
+	if err != nil || dbUserAddress.Len() != 0 {
+		return "", fmt.Errorf("CreateUserAddress: %s", err)
+	}
+
 	//将任务插入数据库
-	dbUserData := entity.UserData{CurrentStatus: 0}
+	dbUserData := entity.UserData{
+		Opcode:        opcode.Text(10),
+		UserNick:      aesDecrypt,
+		CurrentStatus: 0,
+	}
 	insertUserData, err := dao.UserData.Ctx(ctx).Data(dbUserData).Insert()
+	if err != nil {
+		return "", fmt.Errorf("CreateUserAddress: %s", err)
+	}
 
 	// 创建用户合约
 	private := "web3.accountsKey.privateKey0"
 	loading, _ := utility.ReadConfigFile([]string{"web3.accountsFactory", private})
 	createBox := deploy.LoadWithAddress(loading["web3.accountsFactory"], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
-	userAddress, txHash, opcode := deploy.InteractiveAccountContract(createBox, aesDecrypt, loading[private])
-
-	// 检查地址和opcode是否已经存在
-	dbUserAddress, err := g.Model("user_data u,contract_trade c").Where(g.Map{
-		"u.user_address": userAddress,
-		"c.user_address": userAddress,
-	}).WhereOr("c.opcode", opcode).All()
-	if err != nil || dbUserAddress.Len() != 0 {
+	userAddress, txHash, err := deploy.InteractiveAccountContract(createBox, aesDecrypt, loading[private], opcode)
+	if err != nil {
 		return "", fmt.Errorf("CreateUserAddress: %s", err)
 	}
 
@@ -69,13 +76,8 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 	dbUserData.UserAddress = userAddress
 	dbUserData.CurrentStatus = 2
 	dbUserData.Id = int(id)
-	return userAddress, dao.ContractTrade.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		_, err = dao.ContractTrade.Ctx(ctx).Data(
-			entity.ContractTrade{
-				AccountHash: txHash,
-				UserAddress: userAddress,
-				Opcode:      opcode,
-			}).Insert()
+	dbUserData.AccountHash = txHash
+	return userAddress, dao.UserData.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.UserData.Ctx(ctx).Data(dbUserData).Where("id", id).Update()
 		return err
 	})
@@ -105,9 +107,9 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, er
 	log.Println(temp)
 	// 创建用户合约
 	private := "web3.accountsKey.privateKey0"
-	loading, _ := utility.ReadConfigFile([]string{private})
+	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
 
-	createBox := deploy.LoadWithAddress(temp.ContractAddress.String(), "createBox721", loading[private]).(*createBox721.CreateBox721)
+	createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
 	_, err = deploy.BulkIssuance(createBox, temp.ContractAddress, temp.Tos, temp.TokenIds, temp.Uris)
 	if err != nil {
 		return "", err

@@ -3,19 +3,18 @@ package deploy
 import (
 	"github.com/ethereum/go-ethereum/common"
 	"go_private_chain/contracts/accountsFactory"
-	"go_private_chain/utility"
 	"log"
 	"math/big"
 )
 
 // InteractiveAccountContract 创建用户地址
-func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name, privateKeys string) (string, string, string /*, *big.Int*/) {
+func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name string, privateKeys string, opcode *big.Int) (string, string, error /*, *big.Int*/) {
 	auth, _ := CreateConnection(privateKeys)
-	opcode := utility.RandomNumber()
 	accountsAddress := QueryAccountContract(opcode, name, contract)
 	tx, err := contract.CreatePair(auth, opcode, name)
 	if err != nil {
 		log.Println("<==== loadAccounts:发起交易异常 ====>", err)
+		return "", "", err
 	}
 
 	//time.Sleep(9 * time.Second)
@@ -26,7 +25,7 @@ func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name,
 	//}
 	//gas := gasUsed.Mul(gasUsed, tx.GasPrice())
 
-	return accountsAddress.Hex(), tx.Hash().Hex(), opcode.Text(10) /*, gas*/
+	return accountsAddress.Hex(), tx.Hash().Hex(), nil /*, gas*/
 }
 
 // QueryAccountContract 查询合约地址
