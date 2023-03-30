@@ -4,7 +4,6 @@ import (
 	"context"
 	v1 "go_private_chain/api/v1"
 	"go_private_chain/internal/service"
-	"log"
 )
 
 type (
@@ -29,10 +28,10 @@ func (c *UserController) NewUserAddress(ctx context.Context, req *v1.NewUserAddr
 
 // NewBatchCastNft 新的批量创建nft任务
 func (c UserController) NewBatchCastNft(ctx context.Context, req *v1.NewBatchCastNftReq) (res *v1.NewBatchCastNftRes, err error) {
-	log.Println("============================")
-	_, err = service.UserData().BatchCastingNft(ctx, req.Ciphertext)
+	hash, err := service.UserData().BatchCastingNft(ctx, req.Ciphertext)
 	res = &v1.NewBatchCastNftRes{
-		OK: err == nil,
+		Hash: hash,
+		OK:   err == nil,
 	}
 	return
 }

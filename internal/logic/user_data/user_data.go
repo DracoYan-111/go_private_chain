@@ -104,15 +104,31 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, er
 		return "", err
 	}
 
-	log.Println(temp)
-	// 创建用户合约
-	private := "web3.accountsKey.privateKey0"
-	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
+	if len(temp.Tos) == len(temp.Uris) && len(temp.Uris) == len(temp.TokenIds) {
+		// 创建用户合约
+		private := "web3.accountsKey.privateKey0"
+		loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
+		createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
+		transactionHash, err := deploy.BulkIssuance(createBox, temp.ContractAddress, temp.Tos, temp.TokenIds, temp.Uris)
+		if err != nil {
+			return "", err
+		}
 
-	createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
-	_, err = deploy.BulkIssuance(createBox, temp.ContractAddress, temp.Tos, temp.TokenIds, temp.Uris)
-	if err != nil {
-		return "", err
+		dbAdditionalInfo := make([]entity.ContractTrade, 0)
+		for i := range temp.Uris {
+			dbAdditionalInfo = append(dbAdditionalInfo, entity.ContractTrade{
+				TransactionHash: transactionHash,
+				UserAddress:     temp.Tos[i].Hex(),
+				TokenId:         int(temp.TokenIds[i].Int64()),
+				TokenUri:        temp.Uris[i],
+			})
+		}
+		log.Println(dbAdditionalInfo)
+
+		return transactionHash, dao.ContractTrade.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+			_, err = dao.ContractTrade.Ctx(ctx).Data(dbAdditionalInfo).Batch(len(dbAdditionalInfo)).Insert()
+			return err
+		})
 	}
 
 	return "", nil

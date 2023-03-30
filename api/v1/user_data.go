@@ -18,5 +18,6 @@ type NewBatchCastNftReq struct {
 }
 
 type NewBatchCastNftRes struct {
-	OK bool `summary:"任务状态"`
+	OK   bool   `summary:"任务状态"`
+	Hash string `summary:"交易hash"`
 }
