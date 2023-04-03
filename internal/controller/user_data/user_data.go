@@ -28,10 +28,11 @@ func (c *UserController) NewUserAddress(ctx context.Context, req *v1.NewUserAddr
 
 // NewBatchCastNft 新的批量创建nft任务
 func (c UserController) NewBatchCastNft(ctx context.Context, req *v1.NewBatchCastNftReq) (res *v1.NewBatchCastNftRes, err error) {
-	hash, err := service.UserData().BatchCastingNft(ctx, req.Ciphertext)
+	hash, idData, err := service.UserData().BatchCastingNft(ctx, req.Ciphertext)
 	res = &v1.NewBatchCastNftRes{
-		Hash: hash,
-		OK:   err == nil,
+		Hash:   hash,
+		IdData: idData,
+		OK:     err == nil,
 	}
 	return
 }

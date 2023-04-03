@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
+	"math/big"
 )
 
 type (
 	IUserData interface {
 		CreateUserAddress(ctx context.Context, req string) (string, error)
-		BatchCastingNft(ctx context.Context, req string) (string, error)
+		BatchCastingNft(ctx context.Context, req string) (string, []*big.Int, error)
 	}
 )
 

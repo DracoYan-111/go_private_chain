@@ -91,45 +91,95 @@ type additionalInfo struct {
 }
 
 // BatchCastingNft 新的批量创建nft任务
-func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, error) {
+func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []*big.Int, error) {
 	aesDecrypt, err := utility.AesDecrypt(req)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	// 将解密后的数据转换为结构体数据
 	var temp additionalInfo
 	err = json.Unmarshal([]byte(aesDecrypt), &temp)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
+
+	//if len(temp.Tos) == len(temp.Uris) && len(temp.Uris) == len(temp.TokenIds) {
+	//	// 创建新的tokenId
+	//	var number = 0
+	//	for i := range temp.Tos {
+	//		temp.TokenIds[i] = utility.RandomNumber().Div(utility.RandomNumber(), big.NewInt(1000000000000000))
+	//
+	//		all, err := dao.ContractTrade.Ctx(ctx).Where("token_id", temp.TokenIds[i]).All()
+	//		if err != nil || all.Len() != 0 {
+	//			continue
+	//		} else {
+	//			number++
+	//		}
+	//		if number == len(temp.TokenIds) {
+	//			break
+	//		}
+	//	}
+	//}
+	//for i := range temp.TokenIds {
+	//	log.Println(temp.TokenIds[i], "----------------------")
+	//}
 
 	if len(temp.Tos) == len(temp.Uris) && len(temp.Uris) == len(temp.TokenIds) {
-		// 创建用户合约
-		private := "web3.accountsKey.privateKey0"
-		loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
-		createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
-		transactionHash, err := deploy.BulkIssuance(createBox, temp.ContractAddress, temp.Tos, temp.TokenIds, temp.Uris)
-		if err != nil {
-			return "", err
+		var number = 0
+		var foundTokens = make(map[*big.Int]bool)
+		var availableTokens = make(chan *big.Int, len(temp.TokenIds))
+		defer close(availableTokens)
+		for i := range temp.Tos {
+			go func(i int) {
+				for {
+					tokenId := utility.RandomNumber().Div(utility.RandomNumber(), big.NewInt(1000000000000000))
+					if _, found := foundTokens[tokenId]; found {
+						continue
+					}
+					if _, err := dao.ContractTrade.Ctx(ctx).Where("token_id", tokenId).All(); err == nil {
+						availableTokens <- tokenId
+						return
+					}
+					foundTokens[tokenId] = true
+				}
+			}(i)
 		}
-
-		dbAdditionalInfo := make([]entity.ContractTrade, 0)
-		for i := range temp.Uris {
-			dbAdditionalInfo = append(dbAdditionalInfo, entity.ContractTrade{
-				TransactionHash: transactionHash,
-				UserAddress:     temp.Tos[i].Hex(),
-				TokenId:         int(temp.TokenIds[i].Int64()),
-				TokenUri:        temp.Uris[i],
-			})
+		for i := 0; i < len(temp.TokenIds); i++ {
+			temp.TokenIds[i] = <-availableTokens
+			number++
+			if number == len(temp.TokenIds) {
+				break
+			}
 		}
-		log.Println(dbAdditionalInfo)
-
-		return transactionHash, dao.ContractTrade.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-			_, err = dao.ContractTrade.Ctx(ctx).Data(dbAdditionalInfo).Batch(len(dbAdditionalInfo)).Insert()
-			return err
-		})
 	}
 
-	return "", nil
+	for i := range temp.TokenIds {
+		log.Println(temp.TokenIds[i], "----------------------")
+	}
+
+	// 创建用户合约
+	private := "web3.accountsKey.privateKey0"
+	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
+	createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
+	transactionHash, err := deploy.BulkIssuance(createBox, temp.ContractAddress, temp.Tos, temp.TokenIds, temp.Uris)
+	if err != nil {
+		return "", nil, err
+	}
+
+	dbAdditionalInfo := make([]entity.ContractTrade, 0)
+	for i := range temp.Uris {
+		dbAdditionalInfo = append(dbAdditionalInfo, entity.ContractTrade{
+			TransactionHash: transactionHash,
+			UserAddress:     temp.Tos[i].Hex(),
+			TokenId:         int(temp.TokenIds[i].Int64()),
+			TokenUri:        temp.Uris[i],
+		})
+	}
+	log.Println(dbAdditionalInfo)
+
+	return transactionHash, temp.TokenIds, dao.ContractTrade.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		_, err = dao.ContractTrade.Ctx(ctx).Data(dbAdditionalInfo).Batch(len(dbAdditionalInfo)).Insert()
+		return err
+	})
 }

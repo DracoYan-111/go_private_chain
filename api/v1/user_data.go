@@ -1,6 +1,9 @@
 package v1
 
-import "github.com/gogf/gf/v2/frame/g"
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"math/big"
+)
 
 type NewUserAddressReq struct {
 	g.Meta     `path:"/user/new-user-address" method:"post" tags:"AddedAccounts" summary:"创建一个新账户"`
@@ -18,6 +21,7 @@ type NewBatchCastNftReq struct {
 }
 
 type NewBatchCastNftRes struct {
-	OK   bool   `summary:"任务状态"`
-	Hash string `summary:"交易hash"`
+	OK     bool       `summary:"任务状态"`
+	Hash   string     `summary:"交易hash"`
+	IdData []*big.Int `summary:"返回的id数组"`
 }

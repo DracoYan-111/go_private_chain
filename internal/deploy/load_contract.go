@@ -47,8 +47,6 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 	auth, _ := CreateConnection(loading[private])
 	sig, err := Signature(tos, tokenIds, uris, loading[private])
 
-	log.Println(loading[private], auth.From, "==///////////////////==")
-
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +54,10 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 	if err != nil {
 		return "", err
 	}
-	return callBox721.Hash().Hex(), nil
+
+	log.Println(callBox721.Hash().TerminalString(), callBox721.Hash().Hex(), callBox721.Hash().String(), "============")
+
+	return callBox721.Hash().String(), nil
 
 }
 

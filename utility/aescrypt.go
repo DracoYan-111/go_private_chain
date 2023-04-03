@@ -94,7 +94,7 @@ func ReadConfigFile(configNames []string) (map[string]string, error) {
 
 func RandomNumber() *big.Int {
 	for true {
-		rand.Seed(time.Now().UnixNano())
+		rand.Seed(time.Now().UnixNano() + time.Now().UnixMicro())
 		max := big.NewInt(0)
 		max.SetString("99999999999999999999", 10)
 		randomNumber := rand.Intn(int(max.Int64()))
