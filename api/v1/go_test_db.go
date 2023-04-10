@@ -10,7 +10,3 @@ type NewJobTaskReq struct {
 type NewJobTaskRes struct {
 	OK bool `summary:"任务状态"`
 }
-
-type NewTestReq struct {
-	g.Meta `path:"/job/" method:"get" tags:"JobService" summary:"上传一个新的工作任务"`
-}

@@ -15,6 +15,9 @@ import (
 	"go_private_chain/utility"
 	"log"
 	"math/big"
+	"math/rand"
+	"strconv"
+	"time"
 )
 
 type (
@@ -60,7 +63,8 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 	}
 
 	// 创建用户合约
-	private := "web3.accountsKey.privateKey0"
+	rand.Seed(time.Now().UnixNano())
+	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{"web3.accountsFactory", private})
 	createBox := deploy.LoadWithAddress(loading["web3.accountsFactory"], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
 	userAddress, txHash, err := deploy.InteractiveAccountContract(createBox, aesDecrypt, loading[private], opcode)
@@ -159,7 +163,8 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 	}
 
 	// 创建用户合约
-	private := "web3.accountsKey.privateKey0"
+	rand.Seed(time.Now().UnixNano())
+	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
 	createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
 	transactionHash, err := deploy.BulkIssuance(createBox, temp.ContractAddress, temp.Tos, temp.TokenIds, temp.Uris)

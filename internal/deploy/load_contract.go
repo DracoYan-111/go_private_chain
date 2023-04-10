@@ -55,7 +55,7 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 		return "", err
 	}
 
-	log.Println(callBox721.Hash().TerminalString(), callBox721.Hash().Hex(), callBox721.Hash().String(), "============")
+	//log.Println(callBox721.Hash().TerminalString(), callBox721.Hash().Hex(), callBox721.Hash().String(), "============")
 
 	return callBox721.Hash().String(), nil
 
