@@ -137,7 +137,7 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 		for i := range temp.Tos {
 			go func(i int) {
 				for {
-					tokenId := utility.RandomNumber().Div(utility.RandomNumber(), big.NewInt(1000000000000000))
+					tokenId := utility.RandomNumber()
 					if _, found := foundTokens[tokenId]; found {
 						continue
 					}
@@ -177,7 +177,7 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 		dbAdditionalInfo = append(dbAdditionalInfo, entity.ContractTrade{
 			TransactionHash: transactionHash,
 			UserAddress:     temp.Tos[i].Hex(),
-			TokenId:         int(temp.TokenIds[i].Int64()),
+			TokenId:         temp.TokenIds[i].String(),
 			TokenUri:        temp.Uris[i],
 		})
 	}

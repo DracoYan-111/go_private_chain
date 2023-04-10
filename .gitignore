@@ -6,9 +6,6 @@ log/
 pkg/
 bin/
 temp/
-hack/config.yaml
-manifest/config/config.yaml
-
 
 .DS_Store
 .buildpath
@@ -16,9 +13,16 @@ manifest/config/config.yaml
 .project
 .orig
 .swp
-cbuild
 */.DS_Store
-main
 .vscode
+
+hack/config.yaml
+manifest/config/config.yaml
+test.go
+test.json
+tokenJson.json
+test
+cbuild
+main
 composer.lock
 gitpush.sh
