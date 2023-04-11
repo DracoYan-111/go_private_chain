@@ -21,9 +21,8 @@ func InteractiveNftContract(contract *createBox721.CreateBox721, jobData *entity
 	if jobData.ContractAddress != "" || jobData.ContractHash != "" {
 		return jobData.ContractAddress, jobData.ContractHash, big.NewInt(jobData.GasUsed), jobData.Opcode
 	}
-	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721"})
-	contractAddress := QueryNftContract(opcode, jobData.ContractName, jobData.ContractName, common.HexToAddress(loading["web3.createBox721"]), contract)
-	tx, err := contract.CreatePair(auth, opcode, jobData.ContractName, jobData.ContractName, common.HexToAddress(loading["web3.createBox721"]))
+	contractAddress := QueryNftContract(opcode, jobData.ContractName, jobData.ContractName, contract)
+	tx, err := contract.CreatePair(auth, opcode, jobData.ContractName, jobData.ContractName)
 	if err != nil {
 		log.Println("<==== LoadContract:发起交易异常 ====>", err)
 	}
@@ -40,7 +39,7 @@ func InteractiveNftContract(contract *createBox721.CreateBox721, jobData *entity
 }
 
 // BulkIssuance 批量增发方法
-func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.Address, tos []common.Address, tokenIds []*big.Int, uris []string) (string, error) {
+func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.Address, tos []common.Address, tokenIds []string, uris []string) (string, error) {
 	rand.Seed(time.Now().UnixNano())
 	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{private})
@@ -62,7 +61,7 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 }
 
 // Signature 获取方法签名信息
-func Signature(tos []common.Address, tokenIds []*big.Int, uris []string, private string) ([]byte, error) {
+func Signature(tos []common.Address, tokenIds []string, uris []string, private string) ([]byte, error) {
 	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall"})
 	createBox := LoadWithAddress(loading["web3.contractCall"], "contractCall", private).(*contractCall.ContractCall)
 
@@ -74,8 +73,8 @@ func Signature(tos []common.Address, tokenIds []*big.Int, uris []string, private
 }
 
 // QueryNftContract 查询合约地址
-func QueryNftContract(_opcode *big.Int, _name string, _symbol string, _minter common.Address, contract *createBox721.CreateBox721) common.Address {
-	contractAddress, err := contract.CalculateAddress(nil, _opcode, _name, _symbol, _minter)
+func QueryNftContract(_opcode *big.Int, _name string, _symbol string, contract *createBox721.CreateBox721) common.Address {
+	contractAddress, err := contract.CalculateAddress(nil, _opcode, _name, _symbol)
 	if err != nil {
 		log.Println("<==== LoadContract:查询失败 ====>", err)
 	}

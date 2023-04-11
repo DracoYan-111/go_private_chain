@@ -13,7 +13,6 @@ import (
 	"go_private_chain/internal/model/entity"
 	"go_private_chain/internal/service"
 	"go_private_chain/utility"
-	"math/big"
 	"math/rand"
 	"strconv"
 	"time"
@@ -89,12 +88,12 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 type additionalInfo struct {
 	ContractAddress common.Address   `json:"contract"`
 	Tos             []common.Address `json:"tos"`
-	TokenIds        []*big.Int       `json:"tokenIds"`
+	TokenIds        []string         `json:"tokenIds"`
 	Uris            []string         `json:"uris"`
 }
 
 // BatchCastingNft 新的批量创建nft任务
-func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []*big.Int, error) {
+func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []string, error) {
 	aesDecrypt, err := utility.AesDecrypt(req)
 	if err != nil {
 		return "", nil, err
@@ -107,60 +106,20 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 		return "", nil, err
 	}
 
-	//if len(temp.Tos) == len(temp.Uris) && len(temp.Uris) == len(temp.TokenIds) {
-	//	// 创建新的tokenId
-	//	var number = 0
-	//	for i := range temp.Tos {
-	//		temp.TokenIds[i] = utility.RandomNumber().Div(utility.RandomNumber(), big.NewInt(1000000000000000))
-	//
-	//		all, err := dao.ContractTrade.Ctx(ctx).Where("token_id", temp.TokenIds[i]).All()
-	//		if err != nil || all.Len() != 0 {
-	//			continue
-	//		} else {
-	//			number++
-	//		}
-	//		if number == len(temp.TokenIds) {
-	//			break
-	//		}
-	//	}
-	//}
-	//for i := range temp.TokenIds {
-	//	log.Println(temp.TokenIds[i], "----------------------")
-	//}
-
+	// 检查tokenId唯一性
 	if len(temp.Tos) == len(temp.Uris) && len(temp.Uris) == len(temp.TokenIds) {
-		var number = 0
-		var foundTokens = make(map[*big.Int]bool)
-		var availableTokens = make(chan *big.Int, len(temp.TokenIds))
-		defer close(availableTokens)
-		for i := range temp.Tos {
-			go func(i int) {
-				for {
-					tokenId := utility.RandomNumber()
-					if _, found := foundTokens[tokenId]; found {
-						continue
-					}
-					if _, err := dao.ContractTrade.Ctx(ctx).Where("token_id", tokenId).All(); err == nil {
-						availableTokens <- tokenId
-						return
-					}
-					foundTokens[tokenId] = true
-				}
-			}(i)
-		}
-		for i := 0; i < len(temp.TokenIds); i++ {
-			temp.TokenIds[i] = <-availableTokens
-			number++
-			if number == len(temp.TokenIds) {
-				break
-			}
+		all, err := dao.ContractTrade.Ctx(ctx).Where("token_id", temp.TokenIds).All()
+		if err != nil {
+			return "", nil, err
+		} else if len(all) > 0 {
+			return "", nil, fmt.Errorf("tokenID已存在")
 		}
 	}
 
-	//for i := range temp.TokenIds {
-	//	log.Println(temp.TokenIds[i], "----------------------")
-	//}
-
+	////for i := range temp.TokenIds {
+	////	log.Println(temp.TokenIds[i], "----------------------")
+	////}
+	//
 	// 创建用户合约
 	rand.Seed(time.Now().UnixNano())
 	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
@@ -171,16 +130,17 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 		return "", nil, err
 	}
 
+	// 将内容更新到数据库
 	dbAdditionalInfo := make([]entity.ContractTrade, 0)
 	for i := range temp.Uris {
 		dbAdditionalInfo = append(dbAdditionalInfo, entity.ContractTrade{
 			TransactionHash: transactionHash,
+			ContractAddress: temp.ContractAddress.Hex(),
 			UserAddress:     temp.Tos[i].Hex(),
-			TokenId:         temp.TokenIds[i].String(),
+			TokenId:         temp.TokenIds[i],
 			TokenUri:        temp.Uris[i],
 		})
 	}
-	// log.Println(dbAdditionalInfo)
 
 	return transactionHash, temp.TokenIds, dao.ContractTrade.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.ContractTrade.Ctx(ctx).Data(dbAdditionalInfo).Batch(len(dbAdditionalInfo)).Insert()

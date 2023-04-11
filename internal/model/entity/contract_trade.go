@@ -8,6 +8,7 @@ import (
 type ContractTrade struct {
 	Id              int         `json:"id"               description:"主键，自增长ID"`
 	TransactionHash string      `json:"transaction_hash" description:"交易hash"`
+	ContractAddress string      `json:"contract_address" description:"合约地址"`
 	UserAddress     string      `json:"user_address"     description:"用户地址"`
 	TokenId         string      `json:"token_id"         description:"token id"`
 	TokenUri        string      `json:"token_uri"        description:"token Uri"`

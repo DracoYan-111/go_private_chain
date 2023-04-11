@@ -520,7 +520,7 @@ library Address {
     function sendValue(address payable recipient, uint256 amount) internal {
         require(address(this).balance >= amount, "Address: insufficient balance");
 
-        (bool success,) = recipient.call{value : amount}("");
+        (bool success, ) = recipient.call{value: amount}("");
         require(success, "Address: unable to send value, recipient may have reverted");
     }
 
@@ -592,7 +592,7 @@ library Address {
         string memory errorMessage
     ) internal returns (bytes memory) {
         require(address(this).balance >= value, "Address: insufficient balance for call");
-        (bool success, bytes memory returndata) = target.call{value : value}(data);
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
         return verifyCallResultFromTarget(target, success, returndata, errorMessage);
     }
 
@@ -800,10 +800,8 @@ library Math {
         // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
         // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
         // variables such that product = prod1 * 2^256 + prod0.
-        uint256 prod0;
-        // Least significant 256 bits of the product
-        uint256 prod1;
-        // Most significant 256 bits of the product
+        uint256 prod0; // Least significant 256 bits of the product
+        uint256 prod1; // Most significant 256 bits of the product
         assembly {
             let mm := mulmod(x, y, not(0))
             prod0 := mul(x, y)
@@ -859,18 +857,12 @@ library Math {
 
         // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also works
         // in modular arithmetic, doubling the correct bits in each step.
-        inverse *= 2 - denominator * inverse;
-        // inverse mod 2^8
-        inverse *= 2 - denominator * inverse;
-        // inverse mod 2^16
-        inverse *= 2 - denominator * inverse;
-        // inverse mod 2^32
-        inverse *= 2 - denominator * inverse;
-        // inverse mod 2^64
-        inverse *= 2 - denominator * inverse;
-        // inverse mod 2^128
-        inverse *= 2 - denominator * inverse;
-        // inverse mod 2^256
+        inverse *= 2 - denominator * inverse; // inverse mod 2^8
+        inverse *= 2 - denominator * inverse; // inverse mod 2^16
+        inverse *= 2 - denominator * inverse; // inverse mod 2^32
+        inverse *= 2 - denominator * inverse; // inverse mod 2^64
+        inverse *= 2 - denominator * inverse; // inverse mod 2^128
+        inverse *= 2 - denominator * inverse; // inverse mod 2^256
 
         // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.
         // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is
@@ -1005,31 +997,31 @@ library Math {
     function log10(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
     unchecked {
-        if (value >= 10 ** 64) {
-            value /= 10 ** 64;
+        if (value >= 10**64) {
+            value /= 10**64;
             result += 64;
         }
-        if (value >= 10 ** 32) {
-            value /= 10 ** 32;
+        if (value >= 10**32) {
+            value /= 10**32;
             result += 32;
         }
-        if (value >= 10 ** 16) {
-            value /= 10 ** 16;
+        if (value >= 10**16) {
+            value /= 10**16;
             result += 16;
         }
-        if (value >= 10 ** 8) {
-            value /= 10 ** 8;
+        if (value >= 10**8) {
+            value /= 10**8;
             result += 8;
         }
-        if (value >= 10 ** 4) {
-            value /= 10 ** 4;
+        if (value >= 10**4) {
+            value /= 10**4;
             result += 4;
         }
-        if (value >= 10 ** 2) {
-            value /= 10 ** 2;
+        if (value >= 10**2) {
+            value /= 10**2;
             result += 2;
         }
-        if (value >= 10 ** 1) {
+        if (value >= 10**1) {
             result += 1;
         }
     }
@@ -1043,7 +1035,7 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
     unchecked {
         uint256 result = log10(value);
-        return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
+        return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);
     }
     }
 
@@ -1828,10 +1820,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         if (tokenIndex != lastTokenIndex) {
             uint256 lastTokenId = _ownedTokens[from][lastTokenIndex];
 
-            _ownedTokens[from][tokenIndex] = lastTokenId;
-            // Move the last token to the slot of the to-delete token
-            _ownedTokensIndex[lastTokenId] = tokenIndex;
-            // Update the moved token's index
+            _ownedTokens[from][tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
+            _ownedTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
         }
 
         // This also deletes the contents at the last position of the array
@@ -1856,10 +1846,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         // an 'if' statement (like in _removeTokenFromOwnerEnumeration)
         uint256 lastTokenId = _allTokens[lastTokenIndex];
 
-        _allTokens[tokenIndex] = lastTokenId;
-        // Move the last token to the slot of the to-delete token
-        _allTokensIndex[lastTokenId] = tokenIndex;
-        // Update the moved token's index
+        _allTokens[tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
+        _allTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
 
         // This also deletes the contents at the last position of the array
         delete _allTokensIndex[tokenId];
@@ -1932,18 +1920,77 @@ abstract contract ERC721URIStorage is ERC721 {
 }
 
 
+// File @openzeppelin/contracts/utils/Counters.sol@v4.8.2
+
+
+// OpenZeppelin Contracts v4.4.1 (utils/Counters.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @title Counters
+ * @author Matt Condon (@shrugs)
+ * @dev Provides counters that can only be incremented, decremented or reset. This can be used e.g. to track the number
+ * of elements in a mapping, issuing ERC721 ids, or counting request ids.
+ *
+ * Include with `using Counters for Counters.Counter;`
+ */
+library Counters {
+    struct Counter {
+        // This variable should never be directly accessed by users of the library: interactions must be restricted to
+        // the library's function. As of Solidity v0.5.2, this cannot be enforced, though there is a proposal to add
+        // this feature: see https://github.com/ethereum/solidity/issues/4637
+        uint256 _value; // default: 0
+    }
+
+    function current(Counter storage counter) internal view returns (uint256) {
+        return counter._value;
+    }
+
+    function increment(Counter storage counter) internal {
+    unchecked {
+        counter._value += 1;
+    }
+    }
+
+    function decrement(Counter storage counter) internal {
+        uint256 value = counter._value;
+        require(value > 0, "Counter: decrement overflow");
+    unchecked {
+        counter._value = value - 1;
+    }
+    }
+
+    function reset(Counter storage counter) internal {
+        counter._value = 0;
+    }
+}
+
+
 // File contracts/Box721.sol
 
 
 pragma solidity 0.8.9;
 
 
-contract Box721 is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable {
-    //Mint administrator address
-    address public minter;
 
+
+
+
+contract Box721 is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIdCounter;
+
+    // Mint administrator address
+    address public minter;
     // Optional mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
+
+    // Storage of custom token IDs
+    mapping(string => uint256) public  customToken;
+    // Reverse mapping
+    mapping(uint256 => string) public tokenCustom;
+
 
     //Is mint administrator
     modifier onlyMinter(){
@@ -1954,14 +2001,13 @@ contract Box721 is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable
     /**
     * @param _name Full name of artwork
     * @param _symbol Artwork for short
-    * @param _minter Foundry operator address
     */
     constructor (
         string memory _name,
-        string memory _symbol,
-        address _minter
+        string memory _symbol
     ) ERC721(_name, _symbol) {
-        minter = _minter;
+        _tokenIdCounter.increment();
+        minter = _msgSender();
     }
 
     /**
@@ -1996,13 +2042,17 @@ contract Box721 is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable
     */
     function batchSafeMint(
         address[] memory tos,
-        uint256[]memory tokenIds,
+        string[]memory tokenIds,
         string[] memory uris
     ) external onlyMinter {
         require(tos.length == tokenIds.length && tokenIds.length == uris.length, "length mismatch");
         for (uint256 i; i < tokenIds.length; ++i) {
-            _safeMint(tos[i], tokenIds[i]);
-            _setTokenURI(tokenIds[i], uris[i]);
+            uint256 tokenId = _tokenIdCounter.current();
+            _tokenIdCounter.increment();
+            customToken[tokenIds[i]] = tokenId;
+            tokenCustom[tokenId] = tokenIds[i];
+            _safeMint(tos[i], tokenId);
+            _setTokenURI(tokenId, uris[i]);
         }
     }
 
@@ -2043,17 +2093,28 @@ contract Box721 is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable
     * @param owner Artwork owner's address
     * @return User correct information or empty
     */
-    function userAllTokenIndexes(address owner) external view returns (uint256[] memory, string[] memory){
+    function userAllTokenIndexes(address owner) external view returns (uint256[] memory, string[] memory, string[] memory){
         uint256 allIndexes = super.balanceOf(owner);
-        uint256[] memory indexes_ = new uint256[](allIndexes);
+        uint256[] memory indexes = new uint256[](allIndexes);
         string[] memory uris = new string[](allIndexes);
-        if (allIndexes != 0 && indexes_.length == uris.length) {
+        string[] memory ids = new string[](allIndexes);
+        if (allIndexes != 0 && indexes.length == uris.length) {
             for (uint256 i = 0; i < allIndexes; ++i) {
-                indexes_[i] = this.tokenOfOwnerByIndex(owner, i);
-                uris[i] = this.tokenURI(indexes_[i]);
+                indexes[i] = this.tokenOfOwnerByIndex(owner, i);
+                ids[i] = tokenCustom[indexes[i]];
+                uris[i] = this.tokenURI(indexes[i]);
             }
         }
-        return (indexes_, uris);
+        return (indexes, ids, uris);
+    }
+
+    /**
+    * @dev Get uri with specific id
+    * @param custom Specific ID
+    * @return token uri
+    */
+    function getTokenURI(string memory custom) external view returns (string memory){
+        return tokenURI(customToken[custom]);
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal whenNotPaused override(ERC721, ERC721Enumerable) {
@@ -2080,19 +2141,17 @@ contract CreateBox721 {
     * @dev Deploy the contract with the desired content
     * @param _opcode Only opcode
     * @param _name Contract name
-    * @param _minter Issuer's address
+    * @param _symbol Contract symbol
     */
     function createPair(
         uint256 _opcode,
         string memory _name,
-        string memory _symbol,
-        address _minter
+        string memory _symbol
     ) public returns (address pair) {
         (bytes memory bytecode, bytes32 salt) = processingInfo(
             _opcode,
             _name,
-            _symbol,
-            _minter
+            _symbol
         );
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
@@ -2104,19 +2163,17 @@ contract CreateBox721 {
     * @dev Calculate contract address
     * @param _opcode Only opcode
     * @param _name Contract name
-    * @param _minter Issuer's address
+    * @param _symbol Contract symbol
     */
     function calculateAddress(
         uint256 _opcode,
         string memory _name,
-        string memory _symbol,
-        address _minter
+        string memory _symbol
     ) public view returns (address){
         (bytes memory bytecode, bytes32 salt) = processingInfo(
             _opcode,
             _name,
-            _symbol,
-            _minter
+            _symbol
         );
         address contractAddress = address(uint160(uint256(keccak256(abi.encodePacked(
                 bytes1(0xff),
@@ -2131,21 +2188,20 @@ contract CreateBox721 {
     * @dev Preprocess required content
     * @param _opcode Only opcode
     * @param _name Contract name
-    * @param _minter Issuer's address
+    * @param _symbol Contract symbol
     */
     function processingInfo(
         uint256 _opcode,
         string memory _name,
-        string memory _symbol,
-        address _minter
+        string memory _symbol
     ) private pure returns (bytes memory bytecode, bytes32 salt){
         bytecode = abi.encodePacked(
             type(Box721).creationCode,
-            abi.encode(_name, _symbol, _minter)
+            abi.encode(_name, _symbol)
         );
-        bytes32 random = keccak256(abi.encodePacked(_opcode, _minter, _name));
+        bytes32 random = keccak256(abi.encodePacked(_opcode, _symbol, _name));
 
-        salt = keccak256(abi.encodePacked(_opcode, uint160(_minter) * _opcode, _name, random));
+        salt = keccak256(abi.encodePacked(_opcode, _opcode, _name, random));
     }
 
 
@@ -2169,7 +2225,7 @@ contract ContractCall {
         data = abi.encodeWithSelector(Box721.setMinter.selector, minterAddress);
     }
 
-    function batchSafeMintCall(address[] memory tos, uint256[]memory tokenIds, string[] memory uris) external pure returns (bytes memory data){
+    function batchSafeMintCall(address[] memory tos, string[]memory tokenIds, string[] memory uris) external pure returns (bytes memory data){
         data = abi.encodeWithSelector(Box721.batchSafeMint.selector, tos, tokenIds, uris);
     }
 
@@ -2177,7 +2233,7 @@ contract ContractCall {
         data = abi.encodeWithSelector(Box721.batchSafeBurn.selector, tokenIds);
     }
 
-    function batchSecurityTransfer(address[] memory from, address[] memory to, uint256[] memory tokenIds) external pure returns (bytes memory data){
+    function batchSecurityTransferCall(address[] memory from, address[] memory to, uint256[] memory tokenIds) external pure returns (bytes memory data){
         data = abi.encodeWithSelector(Box721.batchSecurityTransfer.selector, from, to, tokenIds);
     }
 }

@@ -40,7 +40,6 @@ func ContractDeployment(privateKeys string) (string, string, *big.Int, int64) {
 		client,
 		"structure.Name",
 		"structure.Symbol",
-		common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"),
 	)
 
 	if err != nil {
