@@ -112,7 +112,7 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 		if err != nil {
 			return "", nil, err
 		} else if len(all) > 0 {
-			return "", nil, fmt.Errorf("tokenID已存在")
+			return "", nil, fmt.Errorf("合约的tokenID已存在")
 		}
 	}
 
