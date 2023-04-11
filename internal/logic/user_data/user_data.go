@@ -108,7 +108,7 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 
 	// 检查tokenId唯一性
 	if len(temp.Tos) == len(temp.Uris) && len(temp.Uris) == len(temp.TokenIds) {
-		all, err := dao.ContractTrade.Ctx(ctx).Where("token_id", temp.TokenIds).All()
+		all, err := dao.ContractTrade.Ctx(ctx).Where("token_id", temp.TokenIds).Where("contract_address", temp.ContractAddress.Hex()).All()
 		if err != nil {
 			return "", nil, err
 		} else if len(all) > 0 {
