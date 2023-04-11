@@ -19,5 +19,3 @@ var (
 		internal.NewUserDataDao(),
 	}
 )
-
-// Fill with you ideas below.

@@ -1,9 +1,21 @@
-# GoFrame Template For SingleRepo
+# Jingping cloud chain internal services
 
-Project Makefile Commands: 
-- `make cli`: Install or Update to the latest GoFrame CLI tool.
-- `make dao`: Generate go files for `Entity/DAO/DO` according to the configuration file from `hack` folder.
-- `make service`: Parse `logic` folder to generate interface go files into `service` folder.
-- `make image TAG=xxx`: Run `docker build` to build image according `manifest/docker`.
-- `make image.push TAG=xxx`: Run `docker build` and `docker push` to build and push image according `manifest/docker`.
-- `make deploy TAG=xxx`: Run `kustomize build` to build and deploy deployment to kubernetes server group according `manifest/deploy`.
+## Existing function:
+
+### 1. Complete blockchain system
+
+### 2. Complete smart contract execution system
+
+### 3. External project initiation interface
+
+### 4. External creation user interface
+
+### 5. External NFT batch issuance interface
+
+## Coming soon:
+
+### 1. Transfer of user NFT
+
+### 2. User NFT query
+
+### 3. Is perfecting...

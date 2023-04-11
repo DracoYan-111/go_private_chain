@@ -14,7 +14,7 @@ func New() *Controller {
 	return &Controller{}
 }
 
-// NewJobTask 是上传新任务的API。
+// NewJobTask 提交新的藏品部署任务
 func (c *Controller) NewJobTask(ctx context.Context, req *v1.NewJobTaskReq) (res *v1.NewJobTaskRes, err error) {
 
 	err = service.GoTestDb().CreateJob(ctx, req.Ciphertext)

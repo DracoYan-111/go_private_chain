@@ -17,16 +17,22 @@ import (
 func InteractiveNftContract(contract *createBox721.CreateBox721, jobData *entity.GoTestDb, privateKeys string) (string, string, *big.Int, string) {
 	auth, client := CreateConnection(privateKeys)
 	opcode, _ := new(big.Int).SetString(jobData.Opcode, 10)
+
 	// 防止重复修改
 	if jobData.ContractAddress != "" || jobData.ContractHash != "" {
 		return jobData.ContractAddress, jobData.ContractHash, big.NewInt(jobData.GasUsed), jobData.Opcode
 	}
 	contractAddress := QueryNftContract(opcode, jobData.ContractName, jobData.ContractName, contract)
+	if contractAddress == common.HexToAddress("") {
+		return "", "", big.NewInt(0), ""
+	}
 	tx, err := contract.CreatePair(auth, opcode, jobData.ContractName, jobData.ContractName)
 	if err != nil {
 		log.Println("<==== LoadContract:发起交易异常 ====>", err)
+		return "", "", big.NewInt(0), ""
 	}
 
+	// 等待链上确定
 	time.Sleep(9 * time.Second)
 
 	gasUsed, err := TransactionNews(client, tx.Hash().Hex())
@@ -54,8 +60,6 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 		return "", err
 	}
 
-	//log.Println(callBox721.Hash().TerminalString(), callBox721.Hash().Hex(), callBox721.Hash().String(), "============")
-
 	return callBox721.Hash().String(), nil
 
 }
@@ -77,6 +81,7 @@ func QueryNftContract(_opcode *big.Int, _name string, _symbol string, contract *
 	contractAddress, err := contract.CalculateAddress(nil, _opcode, _name, _symbol)
 	if err != nil {
 		log.Println("<==== LoadContract:查询失败 ====>", err)
+		return common.HexToAddress("")
 	}
 	return contractAddress
 }

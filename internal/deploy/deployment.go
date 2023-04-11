@@ -2,7 +2,7 @@ package deploy
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -135,14 +135,14 @@ func TransactionNews(client *ethclient.Client, hash string) (*big.Int, error) {
 
 	_, isPending, err := client.TransactionByHash(context.Background(), txHash)
 	if err != nil {
-		return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:哈希交易检查失败 ====>")
+		return new(big.Int).SetUint64(0), fmt.Errorf("<==== LoadContract:哈希交易检查失败 %s ====>", err)
 	}
 	if isPending {
-		return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:交易进行中 ====>")
+		return new(big.Int).SetUint64(0), fmt.Errorf("<==== LoadContract:交易进行中 ====>")
 	} else {
 		receipt, err := client.TransactionReceipt(context.Background(), txHash)
 		if err != nil {
-			return new(big.Int).SetUint64(0), errors.New("<==== LoadContract:获取交易使用的gas量失败 ====>")
+			return new(big.Int).SetUint64(0), fmt.Errorf("<==== LoadContract:获取交易使用的gas量失败 %s ====>", err)
 		}
 		return new(big.Int).SetUint64(receipt.GasUsed), nil
 	}

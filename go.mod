@@ -11,13 +11,11 @@ require (
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.3.3
-	github.com/gogf/gf/contrib/registry/etcd/v2 v2.3.3
+	github.com/gogf/gf/contrib/registry/file/v2 v2.3.3
 	github.com/gogf/gf/v2 v2.3.3
 	github.com/mattn/go-runewidth v0.0.14 // indirect
-	github.com/miguelmota/go-solidity-sha3 v0.1.1 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/robfig/cron v1.2.0
 	github.com/spf13/viper v1.15.0
 	go.opentelemetry.io/otel/sdk v1.14.0 // indirect
 	golang.org/x/crypto v0.7.0 // indirect

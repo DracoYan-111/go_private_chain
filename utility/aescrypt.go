@@ -92,6 +92,24 @@ func ReadConfigFile(configNames []string) (map[string]string, error) {
 	return configs, nil
 }
 
+// PKCS7Unpad 删除 PKCS 7 填充
+func pKCS7Unpad(data []byte, blockSize int) []byte {
+	if len(data) == 0 {
+		return []byte{}
+	}
+	padding := int(data[len(data)-1])
+	if padding < 1 || padding > blockSize {
+		return data
+	}
+	for i := len(data) - 1; i > len(data)-padding-1; i-- {
+		if int(data[i]) != padding {
+			return data
+		}
+	}
+	return data[:len(data)-padding]
+}
+
+// RandomNumber 随机生成19位随机数
 func RandomNumber() *big.Int {
 	for true {
 		rand.Seed(time.Now().UnixNano() + time.Now().UnixMicro())
@@ -125,21 +143,4 @@ func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
 		src = src[x.b.BlockSize():]
 		dst = dst[x.b.BlockSize():]
 	}
-}
-
-// PKCS7Unpad 删除 PKCS 7 填充
-func pKCS7Unpad(data []byte, blockSize int) []byte {
-	if len(data) == 0 {
-		return []byte{}
-	}
-	padding := int(data[len(data)-1])
-	if padding < 1 || padding > blockSize {
-		return data
-	}
-	for i := len(data) - 1; i > len(data)-padding-1; i-- {
-		if int(data[i]) != padding {
-			return data
-		}
-	}
-	return data[:len(data)-padding]
 }

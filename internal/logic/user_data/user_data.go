@@ -116,10 +116,6 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 		}
 	}
 
-	////for i := range temp.TokenIds {
-	////	log.Println(temp.TokenIds[i], "----------------------")
-	////}
-	//
 	// 创建用户合约
 	rand.Seed(time.Now().UnixNano())
 	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))

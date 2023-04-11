@@ -19,5 +19,3 @@ var (
 		internal.NewContractTradeDao(),
 	}
 )
-
-// Fill with you ideas below.

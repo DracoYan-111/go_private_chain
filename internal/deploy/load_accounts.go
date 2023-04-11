@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"go_private_chain/contracts/accountsFactory"
 	"log"
@@ -8,24 +9,17 @@ import (
 )
 
 // InteractiveAccountContract 创建用户地址
-func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name string, privateKeys string, opcode *big.Int) (string, string, error /*, *big.Int*/) {
+func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name string, privateKeys string, opcode *big.Int) (string, string, error) {
 	auth, _ := CreateConnection(privateKeys)
 	accountsAddress := QueryAccountContract(opcode, name, contract)
+	if accountsAddress == common.HexToAddress("") {
+		return "", "", fmt.Errorf("loadAccounts:预计算用户地址失败")
+	}
 	tx, err := contract.CreatePair(auth, opcode, name)
 	if err != nil {
-		log.Println("<==== loadAccounts:发起交易异常 ====>", err)
-		return "", "", err
+		return "", "", fmt.Errorf("loadAccounts:发起交易异常 %s", err)
 	}
-
-	//time.Sleep(9 * time.Second)
-	//
-	//gasUsed, err := TransactionNews(client, tx.Hash().Hex())
-	//if err != nil {
-	//	log.Println(err)
-	//}
-	//gas := gasUsed.Mul(gasUsed, tx.GasPrice())
-
-	return accountsAddress.Hex(), tx.Hash().Hex(), nil /*, gas*/
+	return accountsAddress.Hex(), tx.Hash().Hex(), nil
 }
 
 // QueryAccountContract 查询合约地址
@@ -33,6 +27,7 @@ func QueryAccountContract(_opcode *big.Int, _name string, contract *accountsFact
 	accountsAddress, err := contract.CalculateAddress(nil, _opcode, _name)
 	if err != nil {
 		log.Println("<==== loadAccounts:查询失败 ====>", err)
+		return common.HexToAddress("")
 	}
 	return accountsAddress
 }
