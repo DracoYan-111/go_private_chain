@@ -41,18 +41,20 @@ type TemporaryTwo struct {
 
 // CreateJob 是新合约部署的任务接口
 func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
-	// 解析请求数据
-	aesDecrypt, err := utility.AesDecrypt(req)
-	if err != nil {
-		return err
-	}
+	//// 解析请求数据
+	//aesDecrypt, err := utility.AesDecrypt(req)
+	//if err != nil {
+	//	return err
+	//}
 
 	// 将解密后的数据转换为结构体数据
 	var temps []Temporary
-	err = json.Unmarshal([]byte(aesDecrypt), &temps)
-	if err != nil {
-		return fmt.Errorf("无法解组 json: %s", err)
-	}
+	utility.DecryptStructure(req, &temps)
+
+	//err = json.Unmarshal([]byte(aesDecrypt), &temps)
+	//if err != nil {
+	//	return fmt.Errorf("无法解组 json: %s", err)
+	//}
 
 	// 检查结构体内容是否正确
 	var tempTwos []TemporaryTwo
@@ -71,7 +73,7 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 
 	// 插入数据库
 	return dao.GoTestDb.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		_, err = dao.GoTestDb.Ctx(ctx).Data(tempTwos).Batch(len(tempTwos)).Insert()
+		_, err := dao.GoTestDb.Ctx(ctx).Data(tempTwos).Batch(len(tempTwos)).Insert()
 		return err
 	})
 }

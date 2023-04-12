@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/viper"
 	"log"
@@ -74,6 +75,20 @@ func AesDecrypt(cipher string) (string, error) {
 // NewECBDecrypter 创建一个新的 ECB 模式解密器
 func newECBDecrypter(block cipher.Block) cipher.BlockMode {
 	return &ecbDecrypter{block}
+}
+
+// DecryptStructure 解密后的结构体
+func DecryptStructure(req string, structure interface{}) {
+	aesDecrypt, err := AesDecrypt(req)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// 将解密后的数据转换为结构体数据
+	err = json.Unmarshal([]byte(aesDecrypt), &structure)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 // ReadConfigFile 解读配置文件的数据
