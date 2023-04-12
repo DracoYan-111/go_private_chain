@@ -13,6 +13,7 @@ import (
 	"go_private_chain/internal/model/entity"
 	"go_private_chain/internal/service"
 	"go_private_chain/utility"
+	"log"
 	"math/rand"
 	"strconv"
 	"time"
@@ -138,6 +139,7 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 		})
 	}
 
+	log.Println("-----------------")
 	return transactionHash, temp.TokenIds, dao.ContractTrade.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.ContractTrade.Ctx(ctx).Data(dbAdditionalInfo).Batch(len(dbAdditionalInfo)).Insert()
 		return err
