@@ -24,3 +24,13 @@ type NewBatchCastNftRes struct {
 	Hash   string   `summary:"交易hash"`
 	IdData []string `summary:"返回的id数组"`
 }
+
+type NewTransferNftReq struct {
+	g.Meta     `path:"/user/new-transfer-task" method:"post" tags:"TransferNft" summary:"上传一个新的藏品转移任务"`
+	Ciphertext string `v:"required"`
+}
+
+type NewTransferNftRes struct {
+	OK   bool   `summary:"任务状态"`
+	Hash string `summary:"交易hash"`
+}
