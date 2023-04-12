@@ -90,19 +90,9 @@ type additionalInfo struct {
 
 // BatchCastingNft 新的批量创建nft任务
 func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []string, error) {
-	//aesDecrypt, err := utility.AesDecrypt(req)
-	//if err != nil {
-	//	return "", nil, err
-	//}
-
 	// 将解密后的数据转换为结构体数据
 	var temp additionalInfo
 	utility.DecryptStructure(req, &temp)
-
-	//err = json.Unmarshal([]byte(aesDecrypt), &temp)
-	//if err != nil {
-	//	return "", nil, err
-	//}
 
 	// 检查tokenId唯一性
 	if len(temp.UserAddrArray) == len(temp.UriArray) && len(temp.UriArray) == len(temp.TokenIdArray) {
@@ -151,19 +141,9 @@ type transferNftInfo struct {
 
 // BatchTransferNft 新的批量转移nft任务
 func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, []string, error) {
-	//aesDecrypt, err := utility.AesDecrypt(req)
-	//if err != nil {
-	//	return "", nil, err
-	//}
-
 	// 将解密后的数据转换为结构体数据
 	var temp transferNftInfo
 	utility.DecryptStructure(req, &temp)
-
-	//err = json.Unmarshal([]byte(aesDecrypt), &temp)
-	//if err != nil {
-	//	return "", nil, err
-	//}
 
 	// 检查当前用户余额是否正常
 	rand.Seed(time.Now().UnixNano())
