@@ -1,7 +1,9 @@
 package deploy
 
 import (
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"go_private_chain/contracts/accountsFactory"
 	"go_private_chain/contracts/contractCall"
 	"go_private_chain/contracts/createBox721"
 	"go_private_chain/internal/model/entity"
@@ -62,6 +64,33 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 
 	return callBox721.Hash().String(), nil
 
+}
+
+// BulkTransfer 批量转移
+func BulkTransfer(userAddress, receiveAddress []common.Address, correct []*big.Int, contractAddress common.Address) (string, error) {
+	rand.Seed(time.Now().UnixNano())
+	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
+	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall", "web3.accountsFactory", private})
+	// 获取批量转移字节码
+	contractCallContract := LoadWithAddress(loading["web3.contractCall"], "contractCall", loading[private]).(*contractCall.ContractCall)
+	callData, err := contractCallContract.BatchSecurityTransferCall(nil, userAddress, receiveAddress, correct)
+	if err != nil {
+		return "", fmt.Errorf("BatchSecurityTransferCall: %s", err)
+	}
+	// 获取调用账户字节码
+	accountsFactoryContract := LoadWithAddress(loading["web3.accountsFactory"], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
+	calldata, err := accountsFactoryContract.CallContractCall(nil, contractAddress, callData)
+	if err != nil {
+		return "", fmt.Errorf("CallContractCall: %s", err)
+	}
+	// 调用用户合约
+	auth, _ := CreateConnection(loading[private])
+
+	accounts, err := accountsFactoryContract.CallAccounts(auth, userAddress[0], calldata)
+	if err != nil {
+		return "", fmt.Errorf("CallAccounts: %s", err)
+	}
+	return accounts.Hash().Hex(), nil
 }
 
 // Signature 获取方法签名信息

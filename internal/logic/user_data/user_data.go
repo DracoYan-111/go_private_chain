@@ -13,6 +13,7 @@ import (
 	"go_private_chain/internal/model/entity"
 	"go_private_chain/internal/service"
 	"go_private_chain/utility"
+	"math/big"
 	"math/rand"
 	"strconv"
 	"time"
@@ -133,10 +134,10 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 }
 
 type transferNftInfo struct {
-	ContractAddress common.Address `json:"contractAddress"`
-	UserAddress     common.Address `json:"userAddress"`
-	ReceiveAddress  []string       `json:"receiveAddrArray"`
-	TokenIdArray    []string       `json:"tokenIdArray"`
+	ContractAddress common.Address   `json:"contractAddress"`
+	UserAddress     common.Address   `json:"userAddress"`
+	ReceiveAddress  []common.Address `json:"receiveAddrArray"`
+	TokenIdArray    []string         `json:"tokenIdArray"`
 }
 
 // BatchTransferNft 新的批量转移nft任务
@@ -148,29 +149,36 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 	// 检查当前用户余额是否正常
 	rand.Seed(time.Now().UnixNano())
 	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
-	loading, _ := utility.ReadConfigFile([]string{private})
+	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall", "web3.accountsFactory", private})
 	box721Contract := deploy.LoadWithAddress(temp.ContractAddress.Hex(), "box721", loading[private]).(*box721.Box721)
 	internalId, externalId, _, err := box721Contract.UserAllTokenIndexes(nil, temp.UserAddress)
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("UserAllTokenIndexes: %s", err)
 	} else if len(temp.ReceiveAddress) > len(internalId) {
 		return "", nil, fmt.Errorf("转账数量超过余额")
 	}
 
 	// 检查用户要转移的id是否拥有所有权
-	var correct []string
-	for _, str1 := range temp.TokenIdArray {
+	var userAddress []common.Address
+	var correct []*big.Int
+	var tokenIdArray []string
+	for i, str1 := range temp.TokenIdArray {
 		for _, str2 := range externalId {
 			if str1 == str2 {
-				correct = append(correct, str1)
+				correct = append(correct, internalId[i])
+				userAddress = append(userAddress, temp.UserAddress)
+				tokenIdArray = append(tokenIdArray, str1)
 			}
 		}
 	}
 
 	// 进行转移方法
 	if len(correct) > 0 {
-
+		transfer, err := deploy.BulkTransfer(userAddress, temp.ReceiveAddress, correct, temp.ContractAddress)
+		if err != nil {
+			return "", nil, err
+		}
+		return transfer, tokenIdArray, nil
 	}
-
 	return "", nil, nil
 }
