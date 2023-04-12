@@ -149,8 +149,8 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 	rand.Seed(time.Now().UnixNano())
 	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{private})
-	box721 := deploy.LoadWithAddress(temp.ContractAddress.Hex(), "box721", loading[private]).(*box721.Box721)
-	internalId, externalId, _, err := box721.UserAllTokenIndexes(nil, temp.UserAddress)
+	box721Contract := deploy.LoadWithAddress(temp.ContractAddress.Hex(), "box721", loading[private]).(*box721.Box721)
+	internalId, externalId, _, err := box721Contract.UserAllTokenIndexes(nil, temp.UserAddress)
 	if err != nil {
 		return "", nil, err
 	} else if len(temp.ReceiveAddress) > len(internalId) {
@@ -158,17 +158,17 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 	}
 
 	// 检查用户要转移的id是否拥有所有权
-	common := []string{}
+	var correct []string
 	for _, str1 := range temp.TokenIdArray {
 		for _, str2 := range externalId {
 			if str1 == str2 {
-				common = append(common, str1)
+				correct = append(correct, str1)
 			}
 		}
 	}
 
 	// 进行转移方法
-	if len(common) > 0 {
+	if len(correct) > 0 {
 
 	}
 
