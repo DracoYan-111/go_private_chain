@@ -190,6 +190,7 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 			return transfer, tokenIdArray, nil
 		}
 		return "", nil, err
+	} else {
+		return "", nil, errors.New("tokenId不属于该用户")
 	}
-	return "", nil, nil
 }
