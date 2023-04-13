@@ -39,10 +39,11 @@ func (c UserController) NewBatchCastNft(ctx context.Context, req *v1.NewBatchCas
 
 // NewTransferNft 新的转移nft任务
 func (c UserController) NewTransferNft(ctx context.Context, req *v1.NewTransferNftReq) (res *v1.NewTransferNftRes, err error) {
-	hash, _, err := service.UserData().BatchTransferNft(ctx, req.Ciphertext)
+	hash, idArray, err := service.UserData().BatchTransferNft(ctx, req.Ciphertext)
 	res = &v1.NewTransferNftRes{
-		Hash: hash,
-		OK:   err == nil,
+		Hash:    hash,
+		IdArray: idArray,
+		OK:      err == nil,
 	}
 	return
 }

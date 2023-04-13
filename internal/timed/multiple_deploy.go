@@ -2,6 +2,7 @@ package timed
 
 import (
 	"go_private_chain/contracts/createBox721"
+	"go_private_chain/internal/consts"
 	"go_private_chain/internal/deploy"
 	"go_private_chain/internal/model/entity"
 	"go_private_chain/internal/service"
@@ -21,9 +22,9 @@ type WorkerResult struct {
 
 // worker 执行多线程合约创建任务
 func worker(id int, data *entity.GoTestDb, jobs <-chan int, results chan<- *WorkerResult) {
-	private := "web3.accountsKey.privateKey" + strconv.Itoa(id)
-	loading, _ := utility.ReadConfigFile([]string{"web3.createBox721", private})
-	createBox := deploy.LoadWithAddress(loading["web3.createBox721"], "createBox721", loading[private]).(*createBox721.CreateBox721)
+	private := consts.PrivateKey + strconv.Itoa(id)
+	loading, _ := utility.ReadConfigFile([]string{consts.CreateBox721, private})
+	createBox := deploy.LoadWithAddress(loading[consts.CreateBox721], "createBox721", loading[private]).(*createBox721.CreateBox721)
 	for range jobs {
 		address, hash, gas, opcode := deploy.InteractiveNftContract(createBox, data, loading[private])
 		time.Sleep(1 * time.Second)

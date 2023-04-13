@@ -49,7 +49,7 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 	var tempTwos []TemporaryTwo
 	for _, v := range temps {
 		if v.Opcode == "" || v.ContractName == "" || len(v.Opcode) != 19 || v.ChainId == 0 {
-			return errors.New("非法内容")
+			return errors.New("CreateJo:传入内容格式不正确")
 		} else {
 			tempTwo := TemporaryTwo{
 				Opcode:       v.Opcode,
@@ -70,7 +70,7 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 func (s *sGoTestDb) UndoneJob() ([]*entity.GoTestDb, error) {
 	usefulInfo, err := dao.GoTestDb.DB().Model("go_test_db").All("current_status = 0")
 	if err != nil {
-		return nil, fmt.Errorf("无法获取数据库数据: %s", err)
+		return nil, errors.New("无法获取数据库数据: " + err.Error())
 	}
 
 	return dealWith(usefulInfo.Json()), nil

@@ -6,6 +6,7 @@ import (
 	"go_private_chain/contracts/accountsFactory"
 	"go_private_chain/contracts/contractCall"
 	"go_private_chain/contracts/createBox721"
+	"go_private_chain/internal/consts"
 	"go_private_chain/internal/model/entity"
 	"go_private_chain/utility"
 	"log"
@@ -49,7 +50,7 @@ func InteractiveNftContract(contract *createBox721.CreateBox721, jobData *entity
 // BulkIssuance 批量增发方法
 func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.Address, tos []common.Address, tokenIds []string, uris []string) (string, error) {
 	rand.Seed(time.Now().UnixNano())
-	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
+	private := consts.PrivateKey + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{private})
 	auth, _ := CreateConnection(loading[private])
 	sig, err := Signature(tos, tokenIds, uris, loading[private])
@@ -69,16 +70,16 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 // BulkTransfer 批量转移
 func BulkTransfer(userAddress, receiveAddress []common.Address, correct []*big.Int, contractAddress common.Address) (string, error) {
 	rand.Seed(time.Now().UnixNano())
-	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
-	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall", "web3.accountsFactory", private})
+	private := consts.PrivateKey + strconv.Itoa(rand.Intn(5))
+	loading, _ := utility.ReadConfigFile([]string{consts.ContractCall, consts.AccountsFactory, private})
 	// 获取批量转移字节码
-	contractCallContract := LoadWithAddress(loading["web3.contractCall"], "contractCall", loading[private]).(*contractCall.ContractCall)
+	contractCallContract := LoadWithAddress(loading[consts.ContractCall], "contractCall", loading[private]).(*contractCall.ContractCall)
 	callData, err := contractCallContract.BatchSecurityTransferCall(nil, userAddress, receiveAddress, correct)
 	if err != nil {
 		return "", fmt.Errorf("BatchSecurityTransferCall: %s", err)
 	}
 	// 获取调用账户字节码
-	accountsFactoryContract := LoadWithAddress(loading["web3.accountsFactory"], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
+	accountsFactoryContract := LoadWithAddress(loading[consts.AccountsFactory], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
 	calldata, err := accountsFactoryContract.CallContractCall(nil, contractAddress, callData)
 	if err != nil {
 		return "", fmt.Errorf("CallContractCall: %s", err)
@@ -95,8 +96,8 @@ func BulkTransfer(userAddress, receiveAddress []common.Address, correct []*big.I
 
 // Signature 获取方法签名信息
 func Signature(tos []common.Address, tokenIds []string, uris []string, private string) ([]byte, error) {
-	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall"})
-	createBox := LoadWithAddress(loading["web3.contractCall"], "contractCall", private).(*contractCall.ContractCall)
+	loading, _ := utility.ReadConfigFile([]string{consts.ContractCall})
+	createBox := LoadWithAddress(loading[consts.ContractCall], "contractCall", private).(*contractCall.ContractCall)
 
 	call, err := createBox.BatchSafeMintCall(nil, tos, tokenIds, uris)
 	if err != nil {
@@ -106,8 +107,8 @@ func Signature(tos []common.Address, tokenIds []string, uris []string, private s
 }
 
 // QueryNftContract 查询合约地址
-func QueryNftContract(_opcode *big.Int, _name string, _symbol string, contract *createBox721.CreateBox721) common.Address {
-	contractAddress, err := contract.CalculateAddress(nil, _opcode, _name, _symbol)
+func QueryNftContract(opcode *big.Int, name string, symbol string, contract *createBox721.CreateBox721) common.Address {
+	contractAddress, err := contract.CalculateAddress(nil, opcode, name, symbol)
 	if err != nil {
 		log.Println("<==== LoadContract:查询失败 ====>", err)
 		return common.HexToAddress("")

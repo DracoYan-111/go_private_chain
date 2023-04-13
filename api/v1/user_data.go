@@ -31,6 +31,7 @@ type NewTransferNftReq struct {
 }
 
 type NewTransferNftRes struct {
-	OK   bool   `v:"required" summary:"任务状态"`
-	Hash string `v:"required" summary:"交易hash"`
+	OK      bool     `v:"required" summary:"任务状态"`
+	Hash    string   `v:"required" summary:"交易hash"`
+	IdArray []string `v:"required" summary:"转移成功的id数组"`
 }

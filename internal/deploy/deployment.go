@@ -31,7 +31,7 @@ func ContractDeployment(privateKeys string) (string, string, *big.Int, int64) {
 	balance, err := client.BalanceAt(context.Background(), auth.From, nil)
 
 	if balance.Int64() < 5e16 {
-		log.Println("Deployment:Insufficient user balance", balance)
+		log.Println("Deployment:用户余额不足", balance)
 
 		return "", "", big.NewInt(0), 0
 	}
@@ -123,7 +123,7 @@ func CreateConnection(privateKeys string) (*bind.TransactOpts, *ethclient.Client
 
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)      // in wei
-	auth.GasLimit = uint64(5100000) // in units
+	auth.GasLimit = uint64(5200000) // in units
 	auth.GasPrice = gasPrice
 
 	return auth, client

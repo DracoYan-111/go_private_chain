@@ -23,8 +23,8 @@ func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name 
 }
 
 // QueryAccountContract 查询合约地址
-func QueryAccountContract(_opcode *big.Int, _name string, contract *accountsFactory.AccountsFactory) common.Address {
-	accountsAddress, err := contract.CalculateAddress(nil, _opcode, _name)
+func QueryAccountContract(opcode *big.Int, name string, contract *accountsFactory.AccountsFactory) common.Address {
+	accountsAddress, err := contract.CalculateAddress(nil, opcode, name)
 	if err != nil {
 		log.Println("<==== loadAccounts:查询失败 ====>", err)
 		return common.HexToAddress("")
