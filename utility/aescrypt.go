@@ -6,9 +6,9 @@ import (
 	"crypto/cipher"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/spf13/viper"
-	"log"
 	"math/big"
 	"math/rand"
 	"strings"
@@ -20,7 +20,7 @@ func Encrypt(plaintext string) (string, error) {
 
 	loading, err := ReadConfigFile([]string{"aes.key"} /*, "manifest/config/"*/)
 	if err != nil {
-		log.Println(err)
+		return "", err
 	}
 
 	key := []byte(loading["aes.key"])
@@ -47,17 +47,19 @@ func Encrypt(plaintext string) (string, error) {
 func AesDecrypt(cipher string) (string, error) {
 	loading, err := ReadConfigFile([]string{"aes.key"} /*, "manifest/config/"*/)
 	if err != nil {
-		log.Println(err)
+		return "", errors.New("AesDecrypt:读取配置文件失败")
 	}
 	key := []byte(loading["aes.key"])
 
 	// The ciphertext to be decrypted
-	ciphertext, _ := base64.StdEncoding.DecodeString(cipher)
-
+	ciphertext, err := base64.StdEncoding.DecodeString(cipher)
+	if err != nil {
+		return "", errors.New("AesDecrypt:密文有误解密失败")
+	}
 	// Create a new AES decryption block
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", err
+		return "", errors.New("AesDecrypt:创建AES解密块失败")
 	}
 
 	// Create a decryptor in ECB mode
@@ -78,17 +80,18 @@ func newECBDecrypter(block cipher.Block) cipher.BlockMode {
 }
 
 // DecryptStructure 解密后的结构体
-func DecryptStructure(req string, structure interface{}) {
+func DecryptStructure(req string, structure interface{}) error {
 	aesDecrypt, err := AesDecrypt(req)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 
 	// 将解密后的数据转换为结构体数据
 	err = json.Unmarshal([]byte(aesDecrypt), &structure)
 	if err != nil {
-		log.Println(err)
+		return errors.New("密文转换为结构体失败")
 	}
+	return nil
 }
 
 // ReadConfigFile 解读配置文件的数据

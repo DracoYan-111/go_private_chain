@@ -42,7 +42,10 @@ type TemporaryTwo struct {
 func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 	// 将解密后的数据转换为结构体数据
 	var temps []Temporary
-	utility.DecryptStructure(req, &temps)
+	err := utility.DecryptStructure(req, &temps)
+	if err != nil {
+		return fmt.Errorf("解密密文失败(CreateJo):%s", err)
+	}
 
 	// 检查结构体内容是否正确
 	var tempTwos []TemporaryTwo

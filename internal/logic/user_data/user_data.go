@@ -95,7 +95,10 @@ type additionalInfo struct {
 func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []string, error) {
 	// 将解密后的数据转换为结构体数据
 	var temp additionalInfo
-	utility.DecryptStructure(req, &temp)
+	err := utility.DecryptStructure(req, &temp)
+	if err != nil {
+		return "", nil, fmt.Errorf("解密密文失败(CreateJo):%s", err)
+	}
 
 	// 检查tokenId唯一性
 	if len(temp.UserAddrArray) == len(temp.UriArray) && len(temp.UriArray) == len(temp.TokenIdArray) {
@@ -146,7 +149,10 @@ type transferNftInfo struct {
 func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, []string, error) {
 	// 将解密后的数据转换为结构体数据
 	var temp transferNftInfo
-	utility.DecryptStructure(req, &temp)
+	err := utility.DecryptStructure(req, &temp)
+	if err != nil {
+		return "", nil, fmt.Errorf("解密密文失败(BatchTransferNft):%s", err)
+	}
 
 	// 检查当前用户余额是否正常
 	rand.Seed(time.Now().UnixNano())
@@ -173,22 +179,21 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 		}
 	}
 
-	// 进行转移方法
-	if len(correct) > 0 {
-		transfer, err := deploy.BulkTransfer(userAddress, temp.ReceiveAddress, correct, temp.ContractAddress)
-		if err == nil {
-			// 更新数据库内容
-			for i, v := range tokenIdArray {
-				_, err2 := dao.ContractTrade.Ctx(ctx).Data("user_address", temp.ReceiveAddress[i]).Where(g.Map{
-					"contract_address": temp.ContractAddress.Hex(),
-					"token_id":         v}).Update()
-				if err2 != nil {
-					return "", nil, fmt.Errorf("更新数据库失败(BatchTransferNft):%s", err2)
-				}
-			}
-			return transfer, tokenIdArray, nil
-		}
-		return "", nil, fmt.Errorf("token转移失败(BatchTransferNft):请稍后重试")
+	if len(correct) == 0 {
+		return "", nil, fmt.Errorf("tokenId检查失败(BatchTransferNft):tokenId不属于该用户")
 	}
-	return "", nil, fmt.Errorf("tokenId检查失败(BatchTransferNft):tokenId不属于该用户")
+	transfer, err := deploy.BulkTransfer(userAddress, temp.ReceiveAddress, correct, temp.ContractAddress)
+	if err == nil {
+		// 更新数据库内容
+		for i, v := range tokenIdArray {
+			_, err2 := dao.ContractTrade.Ctx(ctx).Data("user_address", temp.ReceiveAddress[i]).Where(g.Map{
+				"contract_address": temp.ContractAddress.Hex(),
+				"token_id":         v}).Update()
+			if err2 != nil {
+				return "", nil, fmt.Errorf("更新数据库失败(BatchTransferNft):%s", err2)
+			}
+		}
+		return transfer, tokenIdArray, nil
+	}
+	return "", nil, fmt.Errorf("token转移失败(BatchTransferNft):请稍后重试")
 }
