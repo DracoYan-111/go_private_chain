@@ -2,7 +2,6 @@ package user_data
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gogf/gf/v2/database/gdb"
@@ -39,14 +38,14 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 	// 解析请求数据
 	aesDecrypt, err := utility.AesDecrypt(req)
 	if err != nil {
-		return "", errors.New("CreateUserAddress解密失败:" + err.Error())
+		return "", fmt.Errorf("解密失败(CreateUserAddress):%s", err)
 	}
 
 	// 检查opcode是否已经存在
 	opcode := utility.RandomNumber()
 	dbUserAddress, err := dao.UserData.Ctx(ctx).Where("opcode", opcode).All()
 	if err != nil || dbUserAddress.Len() != 0 {
-		return "", errors.New("CreateUserAddress查询失败或opcode重复:" + err.Error())
+		return "", fmt.Errorf("检查opcode失败(CreateUserAddress):%s", err)
 	}
 
 	//将任务插入数据库
@@ -57,7 +56,7 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 	}
 	insertUserData, err := dao.UserData.Ctx(ctx).Data(dbUserData).Insert()
 	if err != nil {
-		return "", errors.New("CreateUserAddress插入信息失败:" + err.Error())
+		return "", fmt.Errorf("任务插入失败(CreateUserAddress):%s", err)
 	}
 
 	// 创建用户合约
@@ -73,7 +72,7 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 	// 更新数据库
 	id, err := insertUserData.LastInsertId()
 	if err != nil {
-		return "", fmt.Errorf("CreateUserAddress: %s", err)
+		return "", fmt.Errorf("更新数据库失败(CreateUserAddress): %s", err)
 	}
 	dbUserData.UserAddress = userAddress
 	dbUserData.CurrentStatus = 2
@@ -102,20 +101,20 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 	if len(temp.UserAddrArray) == len(temp.UriArray) && len(temp.UriArray) == len(temp.TokenIdArray) {
 		all, err := dao.ContractTrade.Ctx(ctx).Where("token_id", temp.TokenIdArray).Where("contract_address", temp.ContractAddress.Hex()).All()
 		if err != nil {
-			return "", nil, err
+			return "", nil, fmt.Errorf("检查tokenId失败(BatchCastingNft):%s", err)
 		} else if len(all) > 0 {
-			return "", nil, fmt.Errorf("合约的tokenID已存在")
+			return "", nil, fmt.Errorf("检查tokenID(BatchCastingNft):tokenID已存在")
 		}
 	}
 
 	// 创建用户合约
 	rand.Seed(time.Now().UnixNano())
-	private := "web3.accountsKey.privateKey" + strconv.Itoa(rand.Intn(5))
+	private := consts.PrivateKey + strconv.Itoa(rand.Intn(5))
 	loading, _ := utility.ReadConfigFile([]string{consts.CreateBox721, private})
 	createBox := deploy.LoadWithAddress(loading[consts.CreateBox721], "createBox721", loading[private]).(*createBox721.CreateBox721)
 	transactionHash, err := deploy.BulkIssuance(createBox, temp.ContractAddress, temp.UserAddrArray, temp.TokenIdArray, temp.UriArray)
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("创建用户是失败(BatchCastingNft):%s", err)
 	}
 
 	// 将内容更新到数据库
@@ -132,7 +131,7 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 
 	return transactionHash, temp.TokenIdArray, dao.ContractTrade.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.ContractTrade.Ctx(ctx).Data(dbAdditionalInfo).Batch(len(dbAdditionalInfo)).Insert()
-		return err
+		return fmt.Errorf("更新数据库失败(BatchCastingNft):%s", err)
 	})
 }
 
@@ -156,7 +155,7 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 	box721Contract := deploy.LoadWithAddress(temp.ContractAddress.Hex(), "box721", loading[private]).(*box721.Box721)
 	internalId, externalId, _, _ := box721Contract.UserAllTokenIndexes(nil, temp.UserAddress)
 	if len(temp.ReceiveAddress) > len(internalId) {
-		return "", nil, fmt.Errorf("转账数量超过余额")
+		return "", nil, fmt.Errorf("转账失败(BatchTransferNft):转账数量超过余额")
 	}
 
 	var userAddress []common.Address
@@ -184,13 +183,12 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 					"contract_address": temp.ContractAddress.Hex(),
 					"token_id":         v}).Update()
 				if err2 != nil {
-					return "", nil, err2
+					return "", nil, fmt.Errorf("更新数据库失败(BatchTransferNft):%s", err2)
 				}
 			}
 			return transfer, tokenIdArray, nil
 		}
-		return "", nil, err
-	} else {
-		return "", nil, errors.New("tokenId不属于该用户")
+		return "", nil, fmt.Errorf("token转移失败(BatchTransferNft):请稍后重试")
 	}
+	return "", nil, fmt.Errorf("tokenId检查失败(BatchTransferNft):tokenId不属于该用户")
 }

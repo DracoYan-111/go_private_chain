@@ -3,7 +3,6 @@ package go_test_db
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"go_private_chain/internal/dao"
@@ -49,7 +48,7 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 	var tempTwos []TemporaryTwo
 	for _, v := range temps {
 		if v.Opcode == "" || v.ContractName == "" || len(v.Opcode) != 19 || v.ChainId == 0 {
-			return errors.New("CreateJo:传入内容格式不正确")
+			return fmt.Errorf("内容检查失败(CreateJo):传入内容格式不正确")
 		} else {
 			tempTwo := TemporaryTwo{
 				Opcode:       v.Opcode,
@@ -63,14 +62,14 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 	// 插入数据库
 	return dao.GoTestDb.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err := dao.GoTestDb.Ctx(ctx).Data(tempTwos).Batch(len(tempTwos)).Insert()
-		return err
+		return fmt.Errorf("插入数据库失败(CreateJo):%s", err)
 	})
 }
 
 func (s *sGoTestDb) UndoneJob() ([]*entity.GoTestDb, error) {
 	usefulInfo, err := dao.GoTestDb.DB().Model("go_test_db").All("current_status = 0")
 	if err != nil {
-		return nil, errors.New("无法获取数据库数据: " + err.Error())
+		return nil, fmt.Errorf("无法获取数据库数据(UndoneJob): %s", err.Error())
 	}
 
 	return dealWith(usefulInfo.Json()), nil
