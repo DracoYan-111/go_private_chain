@@ -164,6 +164,7 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 		return "", nil, fmt.Errorf("转账失败(BatchTransferNft):转账数量超过余额")
 	}
 
+	// 用户所有权检查
 	var userAddress []common.Address
 	var correct []*big.Int
 	var tokenIdArray []string
@@ -179,9 +180,12 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 		}
 	}
 
+	// 检查数量并转移
 	if len(correct) == 0 {
 		return "", nil, fmt.Errorf("tokenId检查失败(BatchTransferNft):tokenId不属于该用户")
 	}
+
+	// 转移token
 	transfer, err := deploy.BulkTransfer(userAddress, temp.ReceiveAddress, correct, temp.ContractAddress)
 	if err == nil {
 		// 更新数据库内容
