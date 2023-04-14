@@ -17,7 +17,7 @@ func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name 
 	}
 	tx, err := contract.CreatePair(auth, opcode, name)
 	if err != nil {
-		return "", "", errors.New("loadAccounts:发起交易异常 " + err.Error())
+		return accountsAddress.Hex(), "", nil
 	}
 	return accountsAddress.Hex(), tx.Hash().Hex(), nil
 }

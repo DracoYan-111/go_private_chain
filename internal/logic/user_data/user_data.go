@@ -65,11 +65,8 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 	rand.Seed(time.Now().UnixNano())
 	private := consts.PrivateKey + strconv.Itoa(rand.Intn(15))
 	loading, _ := utility.ReadConfigFile([]string{consts.AccountsFactory, private})
-	createBox := deploy.LoadWithAddress(loading[consts.AccountsFactory], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
-	userAddress, txHash, err := deploy.InteractiveAccountContract(createBox, aesDecrypt, loading[private], opcode)
-	if err != nil {
-		return "", fmt.Errorf("CreateUserAddress: %s", err)
-	}
+	createAccounts := deploy.LoadWithAddress(loading[consts.AccountsFactory], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
+	userAddress, txHash, _ := deploy.InteractiveAccountContract(createAccounts, aesDecrypt, loading[private], opcode)
 
 	// 更新数据库
 	id, err := insertUserData.LastInsertId()
@@ -77,7 +74,9 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 		return "", fmt.Errorf("更新数据库失败(CreateUserAddress): %s", err)
 	}
 	dbUserData.UserAddress = userAddress
-	dbUserData.CurrentStatus = 2
+	if txHash != "" {
+		dbUserData.CurrentStatus = 2
+	}
 	dbUserData.Id = int(id)
 	dbUserData.AccountHash = txHash
 	return userAddress, dao.UserData.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {

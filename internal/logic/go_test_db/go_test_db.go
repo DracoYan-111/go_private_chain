@@ -2,14 +2,12 @@ package go_test_db
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"go_private_chain/internal/dao"
-	"go_private_chain/internal/model/entity"
 	"go_private_chain/internal/service"
 	"go_private_chain/utility"
-	"log"
 )
 
 type (
@@ -60,41 +58,18 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 			}
 			tempTwos = append(tempTwos, tempTwo)
 		}
+
+		all, err := dao.GoTestDb.Ctx(ctx).Where("opcode", v.Opcode).All()
+		if err != nil || len(all) > 0 {
+			return errors.New("重复检查失败(CreateJob):opcode重复")
+		}
 	}
+
+	// 查询是否存在重复
 
 	// 插入数据库
 	return dao.GoTestDb.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err := dao.GoTestDb.Ctx(ctx).Data(tempTwos).Batch(len(tempTwos)).Insert()
-		return fmt.Errorf("插入数据库失败(CreateJo):%s", err)
+		return err
 	})
-}
-
-func (s *sGoTestDb) UndoneJob() ([]*entity.GoTestDb, error) {
-	usefulInfo, err := dao.GoTestDb.DB().Model("go_test_db").All("current_status = 0")
-	if err != nil {
-		return nil, fmt.Errorf("无法获取数据库数据(UndoneJob): %s", err.Error())
-	}
-
-	return dealWith(usefulInfo.Json()), nil
-}
-
-func (s *sGoTestDb) UpdateJob(newGoTestDb []*entity.GoTestDb) error {
-	for _, gtd := range newGoTestDb {
-		_, err := dao.GoTestDb.DB().Model("go_test_db").Data(gtd).Where("id = ?", gtd.Id).Update()
-		if err != nil {
-			return fmt.Errorf("无法更新数据库数据: %s", err)
-		}
-	}
-	log.Println(len(newGoTestDb), "条数据已经更新")
-	return nil
-}
-
-// dealWith 处理为对象
-func dealWith(queryContext string) []*entity.GoTestDb {
-	var temps []*entity.GoTestDb
-	err := json.Unmarshal([]byte(queryContext), &temps)
-	if err != nil {
-		return nil
-	}
-	return temps
 }
