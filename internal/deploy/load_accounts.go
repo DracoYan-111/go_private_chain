@@ -1,7 +1,7 @@
 package deploy
 
 import (
-	"fmt"
+	"errors"
 	"github.com/ethereum/go-ethereum/common"
 	"go_private_chain/contracts/accountsFactory"
 	"log"
@@ -13,11 +13,11 @@ func InteractiveAccountContract(contract *accountsFactory.AccountsFactory, name 
 	auth, _ := CreateConnection(privateKeys)
 	accountsAddress := QueryAccountContract(opcode, name, contract)
 	if accountsAddress == common.HexToAddress("") {
-		return "", "", fmt.Errorf("loadAccounts:预计算用户地址失败")
+		return "", "", errors.New("loadAccounts:预计算用户地址失败")
 	}
 	tx, err := contract.CreatePair(auth, opcode, name)
 	if err != nil {
-		return "", "", fmt.Errorf("loadAccounts:发起交易异常 %s", err)
+		return "", "", errors.New("loadAccounts:发起交易异常 " + err.Error())
 	}
 	return accountsAddress.Hex(), tx.Hash().Hex(), nil
 }

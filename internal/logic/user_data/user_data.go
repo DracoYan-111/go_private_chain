@@ -44,8 +44,10 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 	// 检查opcode是否已经存在
 	opcode := utility.RandomNumber()
 	dbUserAddress, err := dao.UserData.Ctx(ctx).Where("opcode", opcode).All()
-	if err != nil || dbUserAddress.Len() != 0 {
-		return "", fmt.Errorf("检查opcode失败(CreateUserAddress):%s", err)
+	dbUserNick, err := dao.UserData.Ctx(ctx).Where("user_nick", aesDecrypt).All()
+
+	if err != nil || dbUserAddress.Len() != 0 || dbUserNick.Len() != 0 {
+		return "", fmt.Errorf("检查重复失败(CreateUserAddress):%s", err)
 	}
 
 	//将任务插入数据库
