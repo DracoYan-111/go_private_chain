@@ -63,7 +63,7 @@ func (s *sUserData) CreateUserAddress(ctx context.Context, req string) (string, 
 
 	// 创建用户合约
 	rand.Seed(time.Now().UnixNano())
-	private := consts.PrivateKey + strconv.Itoa(rand.Intn(5))
+	private := consts.PrivateKey + strconv.Itoa(rand.Intn(15))
 	loading, _ := utility.ReadConfigFile([]string{consts.AccountsFactory, private})
 	createBox := deploy.LoadWithAddress(loading[consts.AccountsFactory], "accountsFactory", loading[private]).(*accountsFactory.AccountsFactory)
 	userAddress, txHash, err := deploy.InteractiveAccountContract(createBox, aesDecrypt, loading[private], opcode)
@@ -114,7 +114,7 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 
 	// 创建用户合约
 	rand.Seed(time.Now().UnixNano())
-	private := consts.PrivateKey + strconv.Itoa(rand.Intn(5))
+	private := consts.PrivateKey + strconv.Itoa(rand.Intn(15))
 	loading, _ := utility.ReadConfigFile([]string{consts.CreateBox721, private})
 	createBox := deploy.LoadWithAddress(loading[consts.CreateBox721], "createBox721", loading[private]).(*createBox721.CreateBox721)
 	transactionHash, err := deploy.BulkIssuance(createBox, temp.ContractAddress, temp.UserAddrArray, temp.TokenIdArray, temp.UriArray)
@@ -158,7 +158,7 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 
 	// 检查当前用户余额是否正常
 	rand.Seed(time.Now().UnixNano())
-	private := consts.PrivateKey + strconv.Itoa(rand.Intn(5))
+	private := consts.PrivateKey + strconv.Itoa(rand.Intn(15))
 	loading, _ := utility.ReadConfigFile([]string{"web3.contractCall", consts.AccountsFactory, private})
 	box721Contract := deploy.LoadWithAddress(temp.ContractAddress.Hex(), "box721", loading[private]).(*box721.Box721)
 	internalId, externalId, _, _ := box721Contract.UserAllTokenIndexes(nil, temp.UserAddress)

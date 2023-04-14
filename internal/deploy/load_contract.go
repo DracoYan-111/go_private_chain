@@ -50,7 +50,7 @@ func InteractiveNftContract(contract *createBox721.CreateBox721, jobData *entity
 // BulkIssuance 批量增发方法
 func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.Address, tos []common.Address, tokenIds []string, uris []string) (string, error) {
 	rand.Seed(time.Now().UnixNano())
-	private := consts.PrivateKey + strconv.Itoa(rand.Intn(5))
+	private := consts.PrivateKey + strconv.Itoa(rand.Intn(15))
 	loading, _ := utility.ReadConfigFile([]string{private})
 	auth, _ := CreateConnection(loading[private])
 	sig, err := Signature(tos, tokenIds, uris, loading[private])
@@ -70,7 +70,7 @@ func BulkIssuance(createBox721 *createBox721.CreateBox721, box721Address common.
 // BulkTransfer 批量转移
 func BulkTransfer(userAddress, receiveAddress []common.Address, correct []*big.Int, contractAddress common.Address) (string, error) {
 	rand.Seed(time.Now().UnixNano())
-	private := consts.PrivateKey + strconv.Itoa(rand.Intn(5))
+	private := consts.PrivateKey + strconv.Itoa(rand.Intn(15))
 	loading, _ := utility.ReadConfigFile([]string{consts.ContractCall, consts.AccountsFactory, private})
 	// 获取批量转移字节码
 	contractCallContract := LoadWithAddress(loading[consts.ContractCall], "contractCall", loading[private]).(*contractCall.ContractCall)
