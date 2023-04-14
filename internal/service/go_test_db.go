@@ -2,14 +2,11 @@ package service
 
 import (
 	"context"
-	"go_private_chain/internal/model/entity"
 )
 
 type (
 	IGoTestDb interface {
 		CreateJob(ctx context.Context, req string) error
-		UndoneJob() ([]*entity.GoTestDb, error)
-		UpdateJob(newGoTestDb []*entity.GoTestDb) error
 	}
 )
 
