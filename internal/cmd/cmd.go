@@ -8,7 +8,7 @@ import (
 	"github.com/gogf/gf/v2/net/gsvc"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gfile"
-	goTestDb "go_private_chain/internal/controller/go_test_db"
+	goContractData "go_private_chain/internal/controller/contract_data"
 	goUserData "go_private_chain/internal/controller/user_data"
 	"go_private_chain/internal/service"
 	"go_private_chain/internal/timed"
@@ -32,7 +32,7 @@ var (
 
 				// 注册中间件
 				group.Bind(
-					goTestDb.New(),
+					goContractData.New(),
 					goUserData.New(),
 				)
 			})

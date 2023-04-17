@@ -1,4 +1,4 @@
-package go_test_db
+package contract_data
 
 import (
 	"context"
@@ -7,15 +7,15 @@ import (
 )
 
 type (
-	Controller struct{}
+	JobController struct{}
 )
 
-func New() *Controller {
-	return &Controller{}
+func New() *JobController {
+	return &JobController{}
 }
 
 // NewJobTask 提交新的藏品部署任务
-func (c *Controller) NewJobTask(ctx context.Context, req *v1.NewJobTaskReq) (res *v1.NewJobTaskRes, err error) {
+func (c *JobController) NewJobTask(ctx context.Context, req *v1.NewJobTaskReq) (res *v1.NewJobTaskRes, err error) {
 
 	err = service.GoTestDb().CreateJob(ctx, req.Ciphertext)
 

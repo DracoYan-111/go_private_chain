@@ -1,4 +1,4 @@
-package go_test_db
+package contract_data
 
 import (
 	"context"
@@ -11,15 +11,15 @@ import (
 )
 
 type (
-	sGoTestDb struct{}
+	sContractData struct{}
 )
 
 func init() {
 	service.RegisterGoTestDb(New())
 }
 
-func New() service.IGoTestDb {
-	return &sGoTestDb{}
+func New() service.IContractData {
+	return &sContractData{}
 }
 
 // Temporary 处理json数据
@@ -37,7 +37,7 @@ type TemporaryTwo struct {
 }
 
 // CreateJob 是新合约部署的任务接口
-func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
+func (s *sContractData) CreateJob(ctx context.Context, req string) error {
 	// 将解密后的数据转换为结构体数据
 	var temps []Temporary
 	err := utility.DecryptStructure(req, &temps)
@@ -59,7 +59,7 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 			tempTwos = append(tempTwos, tempTwo)
 		}
 
-		all, err := dao.GoTestDb.Ctx(ctx).Where("opcode", v.Opcode).All()
+		all, err := dao.ContractData.Ctx(ctx).Where("opcode", v.Opcode).All()
 		if err != nil || len(all) > 0 {
 			return errors.New("重复检查失败(CreateJob):opcode重复")
 		}
@@ -68,8 +68,8 @@ func (s *sGoTestDb) CreateJob(ctx context.Context, req string) error {
 	// 查询是否存在重复
 
 	// 插入数据库
-	return dao.GoTestDb.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		_, err := dao.GoTestDb.Ctx(ctx).Data(tempTwos).Batch(len(tempTwos)).Insert()
+	return dao.ContractData.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		_, err := dao.ContractData.Ctx(ctx).Data(tempTwos).Batch(len(tempTwos)).Insert()
 		return err
 	})
 }

@@ -4,8 +4,8 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
-// GoTestDb is the golang structure for table go_test_db.
-type GoTestDb struct {
+// ContractData is the golang structure for table contract_data.
+type ContractData struct {
 	Id              int         `json:"id"               description:"自增ID"`
 	Opcode          string      `json:"opcode"           description:"opcode"`
 	ContractName    string      `json:"contract_name"    description:"contract name"`

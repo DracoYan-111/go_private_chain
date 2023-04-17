@@ -17,7 +17,7 @@ import (
 )
 
 // InteractiveNftContract 创建Box721合约
-func InteractiveNftContract(contract *createBox721.CreateBox721, jobData *entity.GoTestDb, privateKeys string) (string, string, *big.Int, string) {
+func InteractiveNftContract(contract *createBox721.CreateBox721, jobData *entity.ContractData, privateKeys string) (string, string, *big.Int, string) {
 	auth, client := CreateConnection(privateKeys)
 	opcode, _ := new(big.Int).SetString(jobData.Opcode, 10)
 

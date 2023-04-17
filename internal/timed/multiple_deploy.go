@@ -22,7 +22,7 @@ type WorkerJobResult struct {
 }
 
 // workerJob 执行多线程合约创建任务
-func workerJob(id int, data *entity.GoTestDb, jobs <-chan int, results chan<- *WorkerJobResult) {
+func workerJob(id int, data *entity.ContractData, jobs <-chan int, results chan<- *WorkerJobResult) {
 	private := consts.PrivateKey + strconv.Itoa(id)
 	loading, _ := utility.ReadConfigFile([]string{consts.CreateBox721, private})
 	createBox := deploy.LoadWithAddress(loading[consts.CreateBox721], "createBox721", loading[private]).(*createBox721.CreateBox721)
@@ -34,7 +34,7 @@ func workerJob(id int, data *entity.GoTestDb, jobs <-chan int, results chan<- *W
 }
 
 // StartJobUp 启动线程
-func StartJobUp(jobData []*entity.GoTestDb) {
+func StartJobUp(jobData []*entity.ContractData) {
 	var numLoopsTwo = 5
 	var integrate = make(map[string]*WorkerJobResult)
 
@@ -65,7 +65,7 @@ func StartJobUp(jobData []*entity.GoTestDb) {
 }
 
 // processJobStructure 格式化结构并插入数据库
-func processJobStructure(jobData []*entity.GoTestDb, payload map[string]*WorkerJobResult) {
+func processJobStructure(jobData []*entity.ContractData, payload map[string]*WorkerJobResult) {
 	for _, single := range jobData {
 		single.ContractAddress = payload[single.Opcode].Address
 		single.ContractHash = payload[single.Opcode].Hash
@@ -73,9 +73,9 @@ func processJobStructure(jobData []*entity.GoTestDb, payload map[string]*WorkerJ
 		single.CurrentStatus = 2
 	}
 	for _, gtd := range jobData {
-		_, err := dao.GoTestDb.DB().Model("go_test_db").Data(gtd).Where("id = ?", gtd.Id).Update()
+		_, err := dao.ContractData.DB().Model("contract_data").Data(gtd).Where("id", gtd.Id).Update()
 		if err != nil {
-			log.Println("update go_test_db error", err)
+			log.Println("update contract_data error", err)
 		}
 	}
 	log.Println(len(jobData), "条数据已经更新")
@@ -142,7 +142,7 @@ func processUserStructure(jobData []*entity.UserData, payload map[string]*Worker
 		}
 	}
 	for _, gtd := range jobData {
-		_, err := dao.GoTestDb.DB().Model("user_data").Data(gtd).Where("id", gtd.Id).Update()
+		_, err := dao.ContractData.DB().Model("user_data").Data(gtd).Where("id", gtd.Id).Update()
 		if err != nil {
 			log.Println("update user_data error:", err)
 		}

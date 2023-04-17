@@ -35,10 +35,10 @@ func UpdateLibrary() {
 }
 
 // UndoneJob 查询未完成的任务
-func UndoneJob() (temps []*entity.GoTestDb, err error) {
-	job, err := dao.GoTestDb.DB().Model("go_test_db").All("current_status", 0)
+func UndoneJob() (temps []*entity.ContractData, err error) {
+	job, err := dao.ContractData.DB().Model("contract_data").All("current_status", 0)
 	if err != nil {
-		log.Panicln("UndoneUser:数据库户获取异常", err)
+		log.Panicln("UndoneJob:数据库户获取异常", err)
 		return nil, err
 	}
 	err = json.Unmarshal([]byte(job.Json()), &temps)

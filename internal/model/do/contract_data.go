@@ -5,9 +5,9 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
-// GoTestDb is the golang structure of table go_test_db for DAO operations like Where/Data.
-type GoTestDb struct {
-	g.Meta          `orm:"table:go_test_db, do:true"`
+// ContractData is the golang structure of table contract_data for DAO operations like Where/Data.
+type ContractData struct {
+	g.Meta          `orm:"table:contract_data, do:true"`
 	Id              interface{} // 自增ID
 	Opcode          interface{} // opcode
 	ContractName    interface{} // contract name
