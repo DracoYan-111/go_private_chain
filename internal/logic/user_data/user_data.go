@@ -135,7 +135,7 @@ func (s *sUserData) BatchCastingNft(ctx context.Context, req string) (string, []
 
 	return transactionHash, temp.TokenIdArray, dao.ContractTrade.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.ContractTrade.Ctx(ctx).Data(dbAdditionalInfo).Batch(len(dbAdditionalInfo)).Insert()
-		return fmt.Errorf("更新数据库失败(BatchCastingNft):%s", err)
+		return err
 	})
 }
 
