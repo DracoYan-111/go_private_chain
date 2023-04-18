@@ -1,0 +1,15 @@
+{
+  "name": "XXX(tokenName) #(tokenID)",
+  "description": "XXX(token介绍)",
+  "image": "https://(token图片地址)",
+  "attributes": [
+    {
+      "trait_type": "所属公司",
+      "value": "XXX"
+    },
+    {
+      "trait_type": "藏品类型",
+      "value": "XXX"
+    }
+  ]
+}
