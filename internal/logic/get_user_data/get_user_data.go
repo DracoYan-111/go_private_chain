@@ -26,7 +26,7 @@ func New() service.IGetUserData {
 func (s *sGetUserData) GetUserAddress(ctx context.Context, req string) (resData []string, err error) {
 
 	// 通过昵称查询用户地址
-	userData, err := dao.UserData.Ctx(ctx).One("nick_name", req)
+	userData, err := dao.UserData.Ctx(ctx).One("user_nick", req)
 	if err != nil {
 		return nil, fmt.Errorf("查询用户地址失败(GetUserAddress):%s", err)
 	}
