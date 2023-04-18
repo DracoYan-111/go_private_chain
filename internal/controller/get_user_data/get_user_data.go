@@ -16,11 +16,17 @@ func New() *UserController {
 
 // GetUserAddress 通过昵称查询用户地址
 func (c *UserController) GetUserAddress(ctx context.Context, req *v1.GetUserAddressReq) (res *v1.GetUserAddressRes, err error) {
-	userAddress, err := service.GetUserData().GetUserAddress(ctx, req.Nickname)
+	userData, err := service.GetUserData().GetUserAddress(ctx, req.Nickname)
+	var userAddress string
+	var userCreateHash string
+	if userData != nil {
+		userAddress = userData[0]
+		userCreateHash = userData[1]
+	}
 	res = &v1.GetUserAddressRes{
 		OK:             err == nil,
-		UserAddress:    userAddress[0],
-		UserCreateHash: userAddress[1],
+		UserAddress:    userAddress,
+		UserCreateHash: userCreateHash,
 	}
 	return
 }
