@@ -191,7 +191,7 @@ func (s *sUserData) BatchTransferNft(ctx context.Context, req string) (string, [
 	if err == nil {
 		// 更新数据库内容
 		for i, v := range tokenIdArray {
-			_, err2 := dao.ContractTrade.Ctx(ctx).Data("user_address", temp.ReceiveAddress[i]).Where(g.Map{
+			_, err2 := dao.ContractTrade.Ctx(ctx).Data("user_address", temp.ReceiveAddress[i], "transaction_hash", transfer).Where(g.Map{
 				"contract_address": temp.ContractAddress.Hex(),
 				"token_id":         v}).Update()
 			if err2 != nil {
