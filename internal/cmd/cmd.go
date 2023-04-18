@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gfile"
 	goContractData "go_private_chain/internal/controller/contract_data"
+	goGetUserData "go_private_chain/internal/controller/get_user_data"
 	goUserData "go_private_chain/internal/controller/user_data"
 	"go_private_chain/internal/service"
 	"go_private_chain/internal/timed"
@@ -34,6 +35,7 @@ var (
 				group.Bind(
 					goContractData.New(),
 					goUserData.New(),
+					goGetUserData.New(),
 				)
 			})
 			s.Run()

@@ -11,16 +11,16 @@ type (
 )
 
 var (
-	localContract IContractData
+	localContractData IContractData
 )
 
-func GoTestDb() IContractData {
-	if localContract == nil {
-		panic("implement not found for interface IGoTestDb, forgot register?")
+func ContractData() IContractData {
+	if localContractData == nil {
+		panic("implement not found for interface IContractData, forgot register?")
 	}
-	return localContract
+	return localContractData
 }
 
-func RegisterGoTestDb(i IContractData) {
-	localContract = i
+func RegisterContractData(i IContractData) {
+	localContractData = i
 }

@@ -15,7 +15,7 @@ type (
 )
 
 func init() {
-	service.RegisterGoTestDb(New())
+	service.RegisterContractData(New())
 }
 
 func New() service.IContractData {

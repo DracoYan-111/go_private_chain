@@ -15,3 +15,12 @@ type ContractTrade struct {
 	CreatedAt       *gtime.Time `json:"created_at"       description:"创建时间"`
 	UpdatedAt       *gtime.Time `json:"updated_at"       description:"更新时间"`
 }
+
+type UserCollections struct {
+	ContractAddress string `json:"ContractAddress"`
+	CollectionList  struct {
+		TransactionHash []string `json:"TransactionHash"`
+		TokenId         []string `json:"TokenId"`
+		TokenUri        []string `json:"TokenUri"`
+	} `json:"CollectionList"`
+}

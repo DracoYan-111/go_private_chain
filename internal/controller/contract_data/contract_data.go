@@ -17,7 +17,7 @@ func New() *JobController {
 // NewJobTask 提交新的藏品部署任务
 func (c *JobController) NewJobTask(ctx context.Context, req *v1.NewJobTaskReq) (res *v1.NewJobTaskRes, err error) {
 
-	err = service.GoTestDb().CreateJob(ctx, req.Ciphertext)
+	err = service.ContractData().CreateJob(ctx, req.Ciphertext)
 
 	res = &v1.NewJobTaskRes{
 		OK: err == nil,
