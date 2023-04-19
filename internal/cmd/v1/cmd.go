@@ -1,4 +1,5 @@
-package cmd
+// Package v1 针对对v1已有接口的启动函数
+package v1
 
 import (
 	"context"

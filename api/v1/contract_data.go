@@ -1,3 +1,4 @@
+// Package v1 针对v1版本的操作合约接口
 package v1
 
 import "github.com/gogf/gf/v2/frame/g"

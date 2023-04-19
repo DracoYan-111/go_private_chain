@@ -1,3 +1,4 @@
+// Package v1 针对v1版本的造作用户接口
 package v1
 
 import (

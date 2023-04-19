@@ -1,3 +1,4 @@
+// Package contract_data 针对合约数据操作的控制层
 package contract_data
 
 import (

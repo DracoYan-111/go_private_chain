@@ -1,3 +1,4 @@
+// Package v1 针对v1版本的获取用户信息接口
 package v1
 
 import (

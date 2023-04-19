@@ -1,3 +1,4 @@
+// Package consts 针对项目中所有的常量
 package consts
 
 const (
